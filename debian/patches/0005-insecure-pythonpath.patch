@@ -1,0 +1,26 @@
+From: Free Ekanayaka <free.ekanayaka@gmail.com>
+Date: Fri, 21 Oct 2016 09:21:44 +0000
+Subject: insecure-pythonpath
+
+Fix vulnerable example of PYTHONPATH.
+
+Forwarded: no
+Bug-Debian: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=605190
+---
+ docs/core/howto/quotes.rst | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/docs/core/howto/quotes.rst b/docs/core/howto/quotes.rst
+index 163d67b..d171a07 100644
+--- a/docs/core/howto/quotes.rst
++++ b/docs/core/howto/quotes.rst
+@@ -65,7 +65,8 @@ following:
+ #. Add the ``TwistedQuotes`` directory's *parent* to your Python
+    path. For example, if the TwistedQuotes directory's path is
+    ``/mystuff/TwistedQuotes`` or ``c:\mystuff\TwistedQuotes`` 
+-   add ``/mystuff`` to your Python path. On UNIX this would be ``export PYTHONPATH=/mystuff:$PYTHONPATH`` , on Microsoft
++   add ``/mystuff`` to your Python path. On UNIX this would be ``export PYTHONPATH=/mystuff${PYTHONPATH:+:$PYTHONPATH}
++`` , on Microsoft
+    Windows change the ``PYTHONPATH`` variable through the
+    Systems Properties dialog by adding ``;c:\mystuff`` at the
+    end.

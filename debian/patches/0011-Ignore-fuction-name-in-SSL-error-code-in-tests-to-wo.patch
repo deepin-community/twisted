@@ -1,0 +1,27 @@
+From: Balint Reczey <balint.reczey@canonical.com>
+Date: Wed, 28 Nov 2018 18:54:49 +0100
+Subject: Ignore fuction name in SSL error code in tests to work across
+ OpenSSL versions
+
+---
+ src/twisted/test/test_tcp.py | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/src/twisted/test/test_tcp.py b/src/twisted/test/test_tcp.py
+index b8791bb..a3fd7d8 100644
+--- a/src/twisted/test/test_tcp.py
++++ b/src/twisted/test/test_tcp.py
+@@ -1193,7 +1193,12 @@ class ProperlyCloseFilesMixin:
+             expectedErrorCode = self.getHandleErrorCode()
+             exception = self.assertRaises(
+                 self.getHandleExceptionType(), client.handle.send, b'bytes')
+-            self.assertEqual(exception.args[0], expectedErrorCode)
++            try:
++                self.assertEqual(exception.args[0][0][0], expectedErrorCode[0][0])
++                self.assertEqual(exception.args[0][0][2], expectedErrorCode[0][2])
++            except TypeError:
++                self.assertEqual(exception.args[0], expectedErrorCode)
++
+         clientDeferred.addCallback(clientDisconnected)
+ 
+         def cleanup(passthrough):

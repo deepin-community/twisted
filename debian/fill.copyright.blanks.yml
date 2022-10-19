@@ -1,0 +1,60 @@
+debian/:
+    license: Expat
+LICENSE:
+    skip: 1
+.*:
+    override-copyright: |-4
+        
+         2001-2018 Twisted Matrix Laboratories
+                   Allen Short
+                   Amber Hawkie Brown
+                   Andrew Bennetts
+                   Andy Gayton
+                   Antoine Pitrou
+                   Apple Computer, Inc.
+                   Ashwini Oruganti
+                   Benjamin Bruheim
+                   Bob Ippolito
+                   Canonical Limited
+                   Christopher Armstrong
+                   Ciena Corporation
+                   David Reid
+                   Divmod Inc.
+                   Donovan Preston
+                   Eric Mangold
+                   Eyal Lotem
+                   Google Inc.
+                   Hybrid Logic Ltd.
+                   Hynek Schlawack
+                   Itamar Turner-Trauring
+                   James Knight
+                   Jason A. Mobarak
+                   Jean-Paul Calderone
+                   Jessica McKellar
+                   Jonathan D. Simms
+                   Jonathan Jacobs
+                   Jonathan Lange
+                   Julian Berman
+                   Jürgen Hermann
+                   Kevin Horn
+                   Kevin Turner
+                   Laurens Van Houtven
+                   Mary Gardiner
+                   Massachusetts Institute of Technology
+                   Matthew Lefkowitz
+                   Moshe Zadka
+                   Paul Swartz
+                   Pavel Pergamenshchik
+                   Rackspace, US Inc.
+                   Ralph Meijer
+                   Richard Wall
+                   Sean Riley
+                   Software Freedom Conservancy
+                   Tavendo GmbH
+                   Thijs Triemstra
+                   Thomas Herve
+                   Timothy Allen
+                   Tom Prince
+                   Travis B. Hartwell
+         2001-2005 Divmod Inc
+    license: Expat

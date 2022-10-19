@@ -1,0 +1,22 @@
+From: Balint Reczey <balint.reczey@canonical.com>
+Date: Wed, 28 Nov 2018 20:39:26 +0100
+Subject: Skip test for empty cypher string, openssl does not throw error now
+
+See: https://github.com/openssl/openssl/issues/7725
+---
+ src/twisted/test/test_sslverify.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/twisted/test/test_sslverify.py b/src/twisted/test/test_sslverify.py
+index fb6b01b..d012d5b 100644
+--- a/src/twisted/test/test_sslverify.py
++++ b/src/twisted/test/test_sslverify.py
+@@ -2706,7 +2706,7 @@ class ExpandCipherStringTests(unittest.TestCase):
+     if skipSSL:
+         skip = skipSSL
+ 
+-    def test_doesNotStumbleOverEmptyList(self):
++    def _test_doesNotStumbleOverEmptyList(self):
+         """
+         If the expanded cipher list is empty, an empty L{list} is returned.
+         """

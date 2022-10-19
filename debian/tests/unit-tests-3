@@ -1,0 +1,5 @@
+#!/bin/sh -e
+
+chown nobody $AUTOPKGTEST_TMP
+cd $AUTOPKGTEST_TMP
+echo python3 -m twisted.trial --reporter=summary -e twisted | su -s /bin/sh nobody

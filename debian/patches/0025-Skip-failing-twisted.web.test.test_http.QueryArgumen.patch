@@ -1,0 +1,35 @@
+From: Thomas Grainger <tagrain@gmail.com>
+Date: Tue, 23 Feb 2021 21:34:51 +0000
+Subject: skip failing
+ twisted.web.test.test_http.QueryArgumentsTests.testParseqs
+
+https://github.com/twisted/twisted/pull/1523
+---
+ src/twisted/web/test/test_http.py | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/twisted/web/test/test_http.py b/src/twisted/web/test/test_http.py
+index e32926a..ab1cac2 100644
+--- a/src/twisted/web/test/test_http.py
++++ b/src/twisted/web/test/test_http.py
+@@ -10,10 +10,12 @@ from __future__ import absolute_import, division
+ import base64
+ import calendar
+ import random
++import sys
+ 
+ import hamcrest
+ 
+ from urllib.parse import urlparse, urlunsplit, clear_cache, parse_qs
++from unittest import skipIf
+ 
+ from io import BytesIO
+ from itertools import cycle
+@@ -2340,6 +2342,7 @@ ok
+ 
+ 
+ class QueryArgumentsTests(unittest.TestCase):
++    @skipIf(sys.version_info >= (3, 6), "newer py3.6 parse_qs treat ; differently")
+     def testParseqs(self):
+         self.assertEqual(
+             parse_qs(b"a=b&d=c;+=f"),

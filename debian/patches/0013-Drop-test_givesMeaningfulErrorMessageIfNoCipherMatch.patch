@@ -1,0 +1,35 @@
+From: Balint Reczey <balint.reczey@canonical.com>
+Date: Wed, 28 Nov 2018 22:09:42 +0100
+Subject: Drop test_givesMeaningfulErrorMessageIfNoCipherMatches
+
+with OpenSSL 1.1.1 no ValueError is raised
+---
+ src/twisted/test/test_sslverify.py | 15 ---------------
+ 1 file changed, 15 deletions(-)
+
+diff --git a/src/twisted/test/test_sslverify.py b/src/twisted/test/test_sslverify.py
+index d012d5b..fc3bebc 100644
+--- a/src/twisted/test/test_sslverify.py
++++ b/src/twisted/test/test_sslverify.py
+@@ -898,21 +898,6 @@ class OpenSSLOptionsTests(OpenSSLOptionsTestsMixin, unittest.TestCase):
+         self.assertEqual(opts._cipherString.encode('ascii'), ctx._cipherList)
+ 
+ 
+-    def test_givesMeaningfulErrorMessageIfNoCipherMatches(self):
+-        """
+-        If there is no valid cipher that matches the user's wishes,
+-        a L{ValueError} is raised.
+-        """
+-        self.assertRaises(
+-            ValueError,
+-            sslverify.OpenSSLCertificateOptions,
+-            privateKey=self.sKey,
+-            certificate=self.sCert,
+-            acceptableCiphers=
+-            sslverify.OpenSSLAcceptableCiphers.fromOpenSSLCipherString('')
+-        )
+-
+-
+     def test_honorsAcceptableCiphersArgument(self):
+         """
+         If acceptable ciphers are passed, they are used.
