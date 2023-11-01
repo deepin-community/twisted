@@ -1,0 +1,27 @@
+From: Free Ekanayaka <freee@debian.org>
+Date: Sat, 18 Feb 2017 13:50:23 +0000
+Subject: Tests: Handle setlocale more tolerant
+
+Gracefully handle setlocale failures during the test suite (e.g when
+running in a container).
+---
+ src/twisted/conch/test/test_cftp.py | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/src/twisted/conch/test/test_cftp.py b/src/twisted/conch/test/test_cftp.py
+index b0bc1d0..9951a89 100644
+--- a/src/twisted/conch/test/test_cftp.py
++++ b/src/twisted/conch/test/test_cftp.py
+@@ -185,9 +185,9 @@ class ListingTests(TestCase):
+         except locale.Error:
+             localeSkip = True
+         else:
+-            localeSkip = False
+-    finally:
+-        locale.setlocale(locale.LC_ALL, currentLocale)
++            locale.setlocale(locale.LC_ALL, currentLocale)
++    except:
++        pass
+ 
+     @skipIf(localeSkip, "The es_AR.UTF8 locale is not installed.")
+     def test_localeIndependent(self):

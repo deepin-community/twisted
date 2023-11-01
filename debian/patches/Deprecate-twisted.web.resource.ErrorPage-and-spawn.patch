@@ -1,0 +1,231 @@
+From: Tom Most <twm@freecog.net>
+Date: Thu, 20 Oct 2022 23:19:53 -0700
+Subject: Deprecate twisted.web.resource.ErrorPage and spawn
+
+---
+ src/twisted/web/newsfragments/11716.feature |  1 +
+ src/twisted/web/newsfragments/11716.removal |  1 +
+ src/twisted/web/resource.py                 | 69 ++++++++++++++++++++++++-----
+ src/twisted/web/test/test_resource.py       | 51 +++++++++++++++++++--
+ 4 files changed, 106 insertions(+), 16 deletions(-)
+ create mode 100644 src/twisted/web/newsfragments/11716.feature
+ create mode 100644 src/twisted/web/newsfragments/11716.removal
+
+diff --git a/src/twisted/web/newsfragments/11716.feature b/src/twisted/web/newsfragments/11716.feature
+new file mode 100644
+index 0000000..5693458
+--- /dev/null
++++ b/src/twisted/web/newsfragments/11716.feature
+@@ -0,0 +1 @@
++The twisted.web.pages.ErrorPage, NotFoundPage, and ForbiddenPage IResource implementations provide HTML error pages rendered safely using twisted.web.template.
+diff --git a/src/twisted/web/newsfragments/11716.removal b/src/twisted/web/newsfragments/11716.removal
+new file mode 100644
+index 0000000..f4d2b36
+--- /dev/null
++++ b/src/twisted/web/newsfragments/11716.removal
+@@ -0,0 +1 @@
++The twisted.web.resource.ErrorPage, NoResource, and ForbiddenResource classes have been deprecated in favor of new implementations twisted.web.pages module because they permit HTML injection.
+diff --git a/src/twisted/web/resource.py b/src/twisted/web/resource.py
+index 5e6bd83..93c7807 100644
+--- a/src/twisted/web/resource.py
++++ b/src/twisted/web/resource.py
+@@ -1,9 +1,11 @@
+-# -*- test-case-name: twisted.web.test.test_web -*-
++# -*- test-case-name: twisted.web.test.test_web, twisted.web.test.test_resource -*-
+ # Copyright (c) Twisted Matrix Laboratories.
+ # See LICENSE for details.
+ 
+ """
+ Implementation of the lowest-level Resource class.
++
++See L{twisted.web.pages} for some utility implementations.
+ """
+ 
+ 
+@@ -21,8 +23,11 @@ import warnings
+ 
+ from zope.interface import Attribute, Interface, implementer
+ 
++from incremental import Version
++
+ from twisted.python.compat import nativeString
+ from twisted.python.components import proxyForInterface
++from twisted.python.deprecate import deprecatedModuleAttribute
+ from twisted.python.reflect import prefixedMethodNames
+ from twisted.web._responses import FORBIDDEN, NOT_FOUND
+ from twisted.web.error import UnsupportedMethod
+@@ -286,20 +291,25 @@ def _computeAllowedMethods(resource):
+     return allowedMethods
+ 
+ 
+-class ErrorPage(Resource):
++class _UnsafeErrorPage(Resource):
+     """
+-    L{ErrorPage} is a resource which responds with a particular
++    L{_UnsafeErrorPage}, publicly available via the deprecated alias
++    C{ErrorPage}, is a resource which responds with a particular
+     (parameterized) status and a body consisting of HTML containing some
+     descriptive text.  This is useful for rendering simple error pages.
+ 
++    Deprecated in Twisted NEXT because it permits HTML injection; use
++    L{twisted.pages.ErrorPage} instead.
++
+     @ivar template: A native string which will have a dictionary interpolated
+         into it to generate the response body.  The dictionary has the following
+         keys:
+ 
+-          - C{"code"}: The status code passed to L{ErrorPage.__init__}.
+-          - C{"brief"}: The brief description passed to L{ErrorPage.__init__}.
++          - C{"code"}: The status code passed to L{_UnsafeErrorPage.__init__}.
++          - C{"brief"}: The brief description passed to
++            L{_UnsafeErrorPage.__init__}.
+           - C{"detail"}: The detailed description passed to
+-            L{ErrorPage.__init__}.
++            L{_UnsafeErrorPage.__init__}.
+ 
+     @ivar code: An integer status code which will be used for the response.
+     @type code: C{int}
+@@ -342,26 +352,61 @@ class ErrorPage(Resource):
+         return self
+ 
+ 
+-class NoResource(ErrorPage):
++class _UnsafeNoResource(_UnsafeErrorPage):
+     """
+-    L{NoResource} is a specialization of L{ErrorPage} which returns the HTTP
+-    response code I{NOT FOUND}.
++    L{_UnsafeNoResource}, publicly available via the deprecated alias
++    C{NoResource}, is a specialization of L{_UnsafeErrorPage} which
++    returns the HTTP response code I{NOT FOUND}.
++
++    Deprecated in Twisted NEXT because it permits HTML injection; use
++    L{twisted.pages.NotFoundPage} instead.
+     """
+ 
+     def __init__(self, message="Sorry. No luck finding that resource."):
+         ErrorPage.__init__(self, NOT_FOUND, "No Such Resource", message)
+ 
+ 
+-class ForbiddenResource(ErrorPage):
++class _UnsafeForbiddenResource(_UnsafeErrorPage):
+     """
+-    L{ForbiddenResource} is a specialization of L{ErrorPage} which returns the
+-    I{FORBIDDEN} HTTP response code.
++    L{_UnsafeForbiddenResource}, publicly available via the deprecated alias
++    C{ForbiddenResource} is a specialization of L{_UnsafeErrorPage} which
++    returns the I{FORBIDDEN} HTTP response code.
++
++    Deprecated in Twisted NEXT because it permits HTML injection; use
++    L{twisted.pages.ForbiddenPage} instead.
+     """
+ 
+     def __init__(self, message="Sorry, resource is forbidden."):
+         ErrorPage.__init__(self, FORBIDDEN, "Forbidden Resource", message)
+ 
+ 
++# Deliberately undocumented public aliases. See GHSA-vg46-2rrj-3647.
++ErrorPage = _UnsafeErrorPage
++NoResource = _UnsafeNoResource
++ForbiddenResource = _UnsafeForbiddenResource
++
++deprecatedModuleAttribute(
++    Version("Twisted", "NEXT", 0, 0),
++    "Use twisted.pages.ErrorPage instead, which properly escapes HTML.",
++    __name__,
++    "ErrorPage",
++)
++
++deprecatedModuleAttribute(
++    Version("Twisted", "NEXT", 0, 0),
++    "Use twisted.pages.NotFoundPage instead, which properly escapes HTML.",
++    __name__,
++    "NoResource",
++)
++
++deprecatedModuleAttribute(
++    Version("Twisted", "NEXT", 0, 0),
++    "Use twisted.pages.ForbiddenPage instead, which properly escapes HTML.",
++    __name__,
++    "ForbiddenResource",
++)
++
++
+ class _IEncodingResource(Interface):
+     """
+     A resource which knows about L{_IRequestEncoderFactory}.
+diff --git a/src/twisted/web/test/test_resource.py b/src/twisted/web/test/test_resource.py
+index bd2f908..3e83d0e 100644
+--- a/src/twisted/web/test/test_resource.py
++++ b/src/twisted/web/test/test_resource.py
+@@ -11,10 +11,10 @@ from twisted.web.http_headers import Headers
+ from twisted.web.resource import (
+     FORBIDDEN,
+     NOT_FOUND,
+-    ErrorPage,
+-    ForbiddenResource,
+-    NoResource,
+     Resource,
++    _UnsafeErrorPage as ErrorPage,
++    _UnsafeForbiddenResource as ForbiddenResource,
++    _UnsafeNoResource as NoResource,
+     getChildForRequest,
+ )
+ from twisted.web.test.requesthelper import DummyRequest
+@@ -22,13 +22,56 @@ from twisted.web.test.requesthelper import DummyRequest
+ 
+ class ErrorPageTests(TestCase):
+     """
+-    Tests for L{ErrorPage}, L{NoResource}, and L{ForbiddenResource}.
++    Tests for L{_UnafeErrorPage}, L{_UnsafeNoResource}, and
++    L{_UnsafeForbiddenResource}.
+     """
+ 
+     errorPage = ErrorPage
+     noResource = NoResource
+     forbiddenResource = ForbiddenResource
+ 
++    def test_deprecatedErrorPage(self):
++        """
++        The public C{twisted.web.resource.ErrorPage} alias for the
++        corresponding C{_Unsafe} class produces a deprecation warning when
++        imported.
++        """
++        from twisted.web.resource import ErrorPage
++
++        self.assertIs(ErrorPage, self.errorPage)
++
++        [warning] = self.flushWarnings()
++        self.assertEqual(warning["category"], DeprecationWarning)
++        self.assertIn("twisted.pages.ErrorPage", warning["message"])
++
++    def test_deprecatedNoResource(self):
++        """
++        The public C{twisted.web.resource.NoResource} alias for the
++        corresponding C{_Unsafe} class produces a deprecation warning when
++        imported.
++        """
++        from twisted.web.resource import NoResource
++
++        self.assertIs(NoResource, self.noResource)
++
++        [warning] = self.flushWarnings()
++        self.assertEqual(warning["category"], DeprecationWarning)
++        self.assertIn("twisted.pages.NotFoundPage", warning["message"])
++
++    def test_deprecatedForbiddenResource(self):
++        """
++        The public C{twisted.web.resource.ForbiddenResource} alias for the
++        corresponding C{_Unsafe} class produce a deprecation warning when
++        imported.
++        """
++        from twisted.web.resource import ForbiddenResource
++
++        self.assertIs(ForbiddenResource, self.forbiddenResource)
++
++        [warning] = self.flushWarnings()
++        self.assertEqual(warning["category"], DeprecationWarning)
++        self.assertIn("twisted.pages.ForbiddenPage", warning["message"])
++
+     def test_getChild(self):
+         """
+         The C{getChild} method of L{ErrorPage} returns the L{ErrorPage} it is

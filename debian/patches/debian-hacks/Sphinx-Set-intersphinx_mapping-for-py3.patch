@@ -1,0 +1,25 @@
+From: Free Ekanayaka <free.ekanayaka@gmail.com>
+Date: Fri, 21 Oct 2016 07:37:26 +0000
+Subject: Sphinx: Set intersphinx_mapping for 'py3'
+
+Use local copies of object.inv for building documentation.
+
+Forwarded: not-needed
+Bug-Debian: https://bugs.debian.org/836169
+---
+ docs/conf.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/docs/conf.py b/docs/conf.py
+index 3122b10..064e73f 100644
+--- a/docs/conf.py
++++ b/docs/conf.py
+@@ -259,7 +259,7 @@ traclinks_base_url = "https://twistedmatrix.com/trac"
+ # tuple of (<external sphinx documentation URI>, <inventory file location>).
+ # The inventory file may be None to use the default location at the given URI.
+ intersphinx_mapping = {
+-    "py3": ("https://docs.python.org/3", None),
++    'py3': ('/usr/share/doc/python3-doc/html', None),
+     "zopeinterface": ("https://zopeinterface.readthedocs.io/en/latest", None),
+ }
+ # How long to cache remote inventories. Positive is a number of days,

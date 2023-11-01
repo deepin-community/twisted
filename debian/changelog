@@ -1,3 +1,157 @@
+twisted (22.4.0-4) unstable; urgency=medium
+
+  * Team upload.
+  * Add upstream patch for Python 3.11 (Closes: #1029579)
+  * Add upstream patch for CVE-2022-39348 (Closes: #1023359)
+
+ -- Jochen Sprickerhof <jspricke@debian.org>  Mon, 30 Jan 2023 16:12:17 +0100
+
+twisted (22.4.0-3) unstable; urgency=medium
+
+  * Team upload.
+  * Patch: Fix FTBFS with pydoctor 22.7 (Closes: #1016315)
+  * Rebase pydoctor-22.7.patch underneath other debian-specific patches
+    touching the same code.
+
+ -- Stefano Rivera <stefanor@debian.org>  Fri, 02 Sep 2022 14:10:50 +0200
+
+twisted (22.4.0-2) unstable; urgency=medium
+
+  * Team upload.
+  * Patch: Drop dependency on python3-typing-extensions, we don't need it.
+    Avoids an unnecessary Main Inclusion Request in Ubuntu.
+
+ -- Stefano Rivera <stefanor@debian.org>  Sat, 07 May 2022 08:58:45 -0400
+
+twisted (22.4.0-1) unstable; urgency=medium
+
+  * Team upload.
+  * New upstream release.
+    - Fixes CVE-2022-24801 (Closes: #1009030)
+  * Refresh patches.
+  * Drop patch tests/Tests-Ignore-test_unicodeLogFileUTF8.patch, superseded
+    upstream.
+  * Drop "compression = gz" from gbp.conf, we are getting xz tarballs from
+    upstream.
+  * Patch: remove spurious test for illegal whitespace in xmlns.
+
+ -- Stefano Rivera <stefanor@debian.org>  Fri, 22 Apr 2022 22:36:35 -0400
+
+twisted (22.2.0-1) unstable; urgency=medium
+
+  * Team upload.
+  * New upstream release.
+  * Refresh patches.
+  * gbp.conf: Update the main branch.
+  * Make sure we exclude .gitattributes from the next generated tarballs.
+
+ -- Andrej Shadura <andrewsh@debian.org>  Mon, 07 Mar 2022 12:32:07 +0100
+
+twisted (22.1.0-2) unstable; urgency=medium
+
+  * Team upload.
+  * Removal of a private _PY3 constant breaks treq << 20.9.0.
+
+ -- Andrej Shadura <andrewsh@debian.org>  Thu, 17 Feb 2022 11:40:49 +0100
+
+twisted (22.1.0-1) unstable; urgency=medium
+
+  * Team upload
+
+  [ Carsten Schoenert ]
+  * d/gbp.conf: Extend with some more defaults
+  * d/watch: Update to version 4
+  * New upstream version 21.7.0
+  * Rebuild patch queue from patch-queue branch
+    Updated/Rebased/Adjusted/Renamed patches:
+    0003-sphinx-theme.patch ->
+      debian-hacks/Sphinx-Set-html_theme-to-twisteddefault.patch
+    0004-localIntersphinx.patch ->
+      debian-hacks/Sphinx-Set-intersphinx_mapping-for-py3.patch
+    0005-insecure-pythonpath.patch ->
+      debian-hacks/Security-Fix-vulnerable-example-of-PYTHONPATH.patch
+    0006-fix-sphinx-import-path.patch ->
+      debian-hacks/Sphinx-Adjust-setup-of-sys.path.insert.patch
+    0009-no-stderr-in-test_ckeygen.patch ->
+      tests/Tests-Fix-ckeygen-test-writing-to-stderr.patch
+    0010-handle-setlocale-test-failure.patch ->
+      tests/Tests-Handle-setlocale-more-tolerant.patch
+    0012-Skip-test-for-empty-cypher-string-openssl-does-not-t.patch ->
+      tests/Tests-Skip-test-for-empty-cypher-string.patch
+    0013-Drop-test_givesMeaningfulErrorMessageIfNoCipherMatch.patch ->
+      tests/Tests-Drop-test_givesMeaningfulErrorMessageIfNoCipherMatc.patch
+    0016-Try-exec-ing-ckeygen3-if-ckeygen-was-not-found.patch ->
+      debian-hacks/Try-exec-ing-ckeygen3-if-ckeygen-was-not-found.patch
+
+    Removed patches (included upstream):
+    0001-wxpython3.0.patch
+    0002-combinedlog.patch
+    0008-sort-option-keys.patch
+    0010-spurious-failure-in-setup-unit-tests.patch
+    0011-Ignore-fuction-name-in-SSL-error-code-in-tests-to-wo.patch
+    0017-Add-digestmod-parameter-to-HMAC.__init__-invocations.patch
+    0018-Make-the-twisted-tests-work-when-pyOpenSSL-deletes-N.patch
+    0019-Replace-base64.-string-functions-to-fix-py3.9-suppor.patch
+    0020-Fix-imap4-utf-7-codec-lookup-function-for-Python-3.9.patch
+    0021-Merge-9652-wiml-mktime-Allow-mktime-to-raise-EOVERFL.patch
+    0022-increase-size-of-FFDH-keys-for-conch-testing.patch
+    0023-Merge-9801-rodrigc-cgi-Change-import-of-cgi.parse_qs.patch
+    0024-fixed-corrupted-iqmp-value-in-test-RSA-key.patch
+    0025-Skip-failing-twisted.web.test.test_http.QueryArgumen.patch
+  * d/control: Add new required build dependencies
+    Adding pydoctor and python3-typing-extensions as new dependency required
+    for the package build.
+  * d/rules: Drop dh_movefiles for python3-twisted-bin
+    The files which were moved within target aren't existing any more.
+  * autopkgtest: Adjust testing call
+  * Rebuild patch queue from patch-queue branch
+    Added patches:
+    documentation/docs-Don-t-depend-on-git-stuff.patch
+    documentation/docs-conf.py-Adjust-the-intersphinx-mapping.patch
+    documentation/docs-conf.py-Don-t-use-intersphinx-within-pydoctor_args.patch
+    privacy/Privacy-Don-t-sideload-Google-Analytics.patch
+    tests/Test-Ignore-test_failure.py-file.patch
+    tests/Testing-Ignore-test-around-git-tooling.patch
+    tests/Tests-Ignore-test_listingModulesAlreadyImport.patch
+    tests/Tests-Ignore-test_unicodeLogFileUTF8.patch
+    tests/Tests-Ignore-tests-with-some-version-checking.patch
+
+    Adding some more required patches so the build and a later done
+    autopkgtest will succeed.
+  * Lintian: Remove override for python3-twisted
+  * d/control: Remove packages python3-twisted-{bin,dbg}
+    These packages arn't build any more, the source for previous created SO
+    files are now living within a own new upstream project.
+  * d/*control: Running wrap-and-sort -ast
+  * d/control: Update Standards-Version to 4.6.0
+    No further changes needed.
+  * d/rules: Ignore things around previous apidocs folder
+  * d/control: Adjust and update Build-Depends
+    Drop python2-doc and python3-all-{dbg,dev}, adding an versioned
+    dependency on pydoctor >= 21.12.1.
+  * d/control: Update suggestion of python3-twisted
+  * d/rules: Move over to debhelper style
+    Using debhelper targets within d/rules improves the readability
+    enormously and decreases the amount the really needed content to an
+    minimum.
+  * metadata: Update to serve more content
+    Extend data to also include the fields for Bug-Database, Bug-Submit and
+    FAQ.
+  * d/control: Adding entry Rules-Requires-Root: no
+  * d/d/options: Drop config file
+  * d/copyright: Update to current year data
+  * d/python3-twisted.post{inst.rm}: Uniform indentation style
+  * d/rules: Adjust shebang to use python3 in twisted-doc
+  * Lintian: Adding an override for twisted-doc
+
+  [ Andrej Shadura ]
+  * New upstream release.
+  * Update dependency versions.
+  * Refresh patches.
+  * Use dh-sequence-python3 instead of --with python3.
+
+ -- Andrej Shadura <andrewsh@debian.org>  Thu, 10 Feb 2022 14:48:43 +0100
+
 twisted (20.3.0-7) unstable; urgency=medium
 
   * Team upload.

@@ -1,0 +1,36 @@
+From: Free Ekanayaka <freee@debian.org>
+Date: Sat, 26 Nov 2016 11:37:52 +0000
+Subject: Tests: Fix ckeygen test writing to stderr
+
+Improve test process which writes on stderr which will fail within the
+Debian autopkgtest environment otherwise.
+
+Forwarded: https://twistedmatrix.com/trac/ticket/8924
+---
+ src/twisted/conch/test/test_ckeygen.py | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/src/twisted/conch/test/test_ckeygen.py b/src/twisted/conch/test/test_ckeygen.py
+index 8b0ed86..584f59e 100644
+--- a/src/twisted/conch/test/test_ckeygen.py
++++ b/src/twisted/conch/test/test_ckeygen.py
+@@ -8,6 +8,7 @@ Tests for L{twisted.conch.scripts.ckeygen}.
+ import getpass
+ import subprocess
+ import sys
++import os
+ from io import StringIO
+ 
+ from twisted.conch.test.keydata import (
+@@ -105,7 +106,10 @@ class KeyGenTests(TestCase):
+     def test_runBadKeytype(self):
+         filename = self.mktemp()
+         with self.assertRaises(subprocess.CalledProcessError):
+-            subprocess.check_call(["ckeygen", "-t", "foo", "-f", filename])
++            with open(os.devnull, "rb") as devnull:
++                subprocess.check_call(
++                    ['ckeygen', '-t', 'foo', '-f', filename],
++                    stderr=devnull)
+ 
+     def test_enumrepresentation(self):
+         """

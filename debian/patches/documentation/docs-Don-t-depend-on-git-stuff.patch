@@ -1,0 +1,75 @@
+From: Carsten Schoenert <c.schoenert@t-online.de>
+Date: Sun, 2 Jan 2022 20:25:00 +0100
+Subject: docs: Don't depend on git stuff
+
+In preparation for the build of the documentation the system tries to
+detect the Git status, we don't build within a Git tree and therefore
+the build will fail. Ignoring all that Git thingy and use a static link
+to the upstream source.
+---
+ docs/conf.py | 30 +++++++++++++++---------------
+ 1 file changed, 15 insertions(+), 15 deletions(-)
+
+diff --git a/docs/conf.py b/docs/conf.py
+index 0736ff3..6484f9e 100644
+--- a/docs/conf.py
++++ b/docs/conf.py
+@@ -188,18 +188,18 @@ epub_copyright = "2020, Twisted Matrix Labs"
+ 
+ 
+ # -- Extension configuration ----------------------------------------------
+-_git_reference = subprocess.run(
+-    ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+-    text=True,
+-    encoding="utf8",
+-    capture_output=True,
+-    check=True,
+-).stdout
++#_git_reference = subprocess.run(
++#    ["git", "rev-parse", "--abbrev-ref", "HEAD"],
++#    text=True,
++#    encoding="utf8",
++#    capture_output=True,
++#    check=True,
++#).stdout
+ 
+ 
+-print(f"== Environment dump for {_git_reference} ===")
+-pprint(dict(os.environ))
+-print("======")
++#print(f"== Environment dump for {_git_reference} ===")
++#pprint(dict(os.environ))
++#print("======")
+ 
+ # Base url for API docs
+ api_base_url = f"/documents/{release}/api/"
+@@ -217,16 +217,16 @@ if on_rtd:
+ # Try to find URL fragment for the GitHub source page based on current
+ # branch or tag.
+ 
+-if _git_reference == "HEAD":
++#if _git_reference == "HEAD":
+     # It looks like the branch has no name.
+     # Fallback to commit ID.
+-    _git_reference = subprocess.getoutput("git rev-parse HEAD")
++#    _git_reference = subprocess.getoutput("git rev-parse HEAD")
+ 
+ if os.environ.get("READTHEDOCS", "") == "True":
+     rtd_version = os.environ.get("READTHEDOCS_VERSION", "")
+-    if "." in rtd_version:
++#    if "." in rtd_version:
+         # It looks like we have a tag build.
+-        _git_reference = rtd_version
++#        _git_reference = rtd_version
+ 
+ _source_root = pathlib.Path(__file__).parent.parent / "src"
+ _project_root = pathlib.Path(__file__).parent.parent
+@@ -235,7 +235,7 @@ pydoctor_args = [
+     "--quiet",
+     # pydoctor should not fail the sphinx build, we have another tox environment for that.
+     f"--config={_project_root}/setup.cfg",
+-    f"--html-viewsource-base=https://github.com/twisted/twisted/tree/{_git_reference}/src",
++    f"--html-viewsource-base=https://github.com/twisted/twisted/tree/trunk",
+     f"--project-base-dir={_source_root}",
+     f"--template-dir={_source_root}/twisted/python/_pydoctortemplates",
+     "--html-output={outdir}/api",

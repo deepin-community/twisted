@@ -1,2 +1,10 @@
-version=3
-https://pypi.debian.net/Twisted/Twisted-([\d\.]*)\.tar\.bz2
+# watch file for twisted
+
+version=4
+
+opts="mode=git, \
+      filenamemangle=s/.+\/(\d\S*)\.tar\.gz/twisted-$1.tar.gz/ \
+      uversionmangle=s/(\d)[_\.\-\+]?((RC|rc|pre|dev|beta|alpha)\.?\d*)$/$1~$2/, \
+      dversionmangle=s/\+ds(\.?\d+)?$//" \
+https://github.com/twisted/twisted.git \
+      refs/tags/twisted-(\d{2}\.\d.\d)

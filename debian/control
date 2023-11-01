@@ -2,94 +2,75 @@ Source: twisted
 Section: python
 Priority: optional
 Maintainer: Debian Python Team <team+python@tracker.debian.org>
-Uploaders: Matthias Klose <doko@debian.org>
-Build-Depends: debhelper-compat (= 13),
-               dh-python,
-               patch,
-               python2-doc,
-               python3-all-dev,
-               python3-all-dbg,
-               python3-hamcrest,
-               python3-zope.interface (>= 4.0.2),
-               python3-setuptools,
-               python3-incremental,
-               python3-constantly,
-               python3-automat (>= 0.6.0),
-               python3-hyperlink,
-               python3-doc
-Build-Depends-Indep: python3-sphinx <!nodoc>
-Standards-Version: 4.5.0
+Uploaders:
+ Matthias Klose <doko@debian.org>,
+Build-Depends:
+ debhelper-compat (= 13),
+ dh-sequence-python3,
+ patch,
+ pydoctor (>= 22.7),
+ python3-all,
+ python3-attr (>= 19.2.0),
+ python3-automat (>= 0.8.0),
+ python3-constantly,
+ python3-doc,
+ python3-hamcrest,
+ python3-hyperlink,
+ python3-incremental (>= 21.3.0),
+ python3-setuptools,
+ python3-zope.interface (>= 4.4.2),
+Build-Depends-Indep:
+ python3-sphinx <!nodoc>,
+Rules-Requires-Root: no
+Standards-Version: 4.6.0
 Homepage: https://twistedmatrix.com/
 Vcs-Browser: https://salsa.debian.org/python-team/packages/twisted
 Vcs-Git: https://salsa.debian.org/python-team/packages/twisted.git
 
 Package: python3-twisted
 Architecture: all
-Depends: ${python3:Depends},
-         python3-twisted-bin (>= ${source:Version}),
-         python3-zope.interface (>= 4.0.2),
-         python3-automat (>= 0.6.0),
-         python3-attr (>= 17.1.0),
-         ${misc:Depends},
-         python3-openssl,
-         python3-idna,
-         python3-service-identity (>= 18.1.0),
-         python3-hamcrest,
-         python3-cryptography (>= 2.5),
-         python3-bcrypt (>= 3.0.0),
-Suggests: python3-tk,
-          python3-pampy,
-          python3-qt4,
-          python3-serial,
-          python3-wxgtk2.8
-Provides: ${python:Provides}
-Conflicts: python3-twisted-experimental
-Replaces: python3-twisted-experimental
-Breaks: python3-h2 (<< 3.0.0)
+Depends:
+ python3-bcrypt (>= 3.0.0),
+ python3-cryptography (>= 2.5),
+ python3-hamcrest,
+ python3-idna,
+ python3-openssl,
+ python3-service-identity (>= 18.1.0),
+ ${misc:Depends},
+ ${python3:Depends},
+Suggests:
+ python3-pampy,
+ python3-serial,
+ python3-tk,
+ python3-wxgtk4.0,
+Provides:
+ ${python:Provides},
+Conflicts:
+ python3-twisted-experimental,
+Replaces:
+ python3-twisted-experimental,
+Breaks:
+ python3-h2 (<< 3.0.0),
+ python3-treq (<< 20.9.0),
 Description: Event-based framework for internet applications
  It includes a web server, a telnet server, a multiplayer RPG engine, a
  generic client and server for remote object access, and APIs for creating
  new protocols.
-
-Package: python3-twisted-bin
-Architecture: any
-Multi-Arch: same
-Depends: ${python3:Depends},
-         ${shlibs:Depends},
-         ${misc:Depends}
-Provides: ${python:Provides}
-Suggests: python3-twisted-bin-dbg
-Description: Event-based framework for internet applications
- It includes a web server, a telnet server, a multiplayer RPG engine, a
- generic client and server for remote object access, and APIs for creating
- new protocols.
-
-Package: python3-twisted-bin-dbg
-Section: debug
-Architecture: any
-Multi-Arch: same
-Depends: python3-zope.interface-dbg,
-         python3-twisted-bin (= ${binary:Version}),
-         python3-dbg, ${shlibs:Depends},
-         ${misc:Depends}
-Description: Event-based framework for internet applications (debug extension)
- It includes a web server, a telnet server, a multiplayer RPG engine, a
- generic client and server for remote object access, and APIs for creating
- new protocols.
- .
- This package contains the extension built for the Python debug interpreter.
 
 Package: twisted-doc
 Section: doc
 Build-Profiles: <!nodoc>
 Architecture: all
 Multi-Arch: foreign
-Depends: ${misc:Depends},
-         ${sphinxdoc:Depends}
-Suggests: python3-twisted
-Recommends: www-browser | postscript-viewer | pdf-viewer
+Depends:
+ ${misc:Depends},
+ ${sphinxdoc:Depends},
+Suggests:
+ python3-twisted,
+Recommends:
+ www-browser | postscript-viewer | pdf-viewer,
 Description: Official documentation of Twisted
- This contains various HOWTOs and overviews in various formats
+ This contains various HOWTOs and overviews in various formats.
  .
  Twisted is an event-based framework for internet applications.
  It includes a web server, a telnet server, a multiplayer RPG engine, a

@@ -1,0 +1,236 @@
+From: Tom Most <twm@freecog.net>
+Date: Mon, 24 Oct 2022 21:42:30 -0700
+Subject: =?utf-8?q?twisted=2Eweb=2Epages=2E=7BErrorPage_=E2=86=92_errorPage?=
+ =?utf-8?q?=7D?=
+
+---
+ src/twisted/web/newsfragments/11716.feature |  2 +-
+ src/twisted/web/pages.py                    | 69 ++++++++++++++++++-----------
+ src/twisted/web/resource.py                 |  4 +-
+ src/twisted/web/test/test_pages.py          | 15 ++++---
+ src/twisted/web/test/test_resource.py       |  2 +-
+ 5 files changed, 56 insertions(+), 36 deletions(-)
+
+diff --git a/src/twisted/web/newsfragments/11716.feature b/src/twisted/web/newsfragments/11716.feature
+index e8ba00b..bdcd36d 100644
+--- a/src/twisted/web/newsfragments/11716.feature
++++ b/src/twisted/web/newsfragments/11716.feature
+@@ -1 +1 @@
+-The twisted.web.pages.ErrorPage, notFound, and forbidden IResource implementations provide HTML error pages safely rendered using twisted.web.template.
++The twisted.web.pages.errorPage, notFound, and forbidden each return an IResource that displays an HTML error pages safely rendered using twisted.web.template.
+diff --git a/src/twisted/web/pages.py b/src/twisted/web/pages.py
+index 524148f..002b8a9 100644
+--- a/src/twisted/web/pages.py
++++ b/src/twisted/web/pages.py
+@@ -7,7 +7,7 @@ Utility implementations of L{IResource}.
+ """
+ 
+ __all__ = (
+-    "ErrorPage",
++    "errorPage",
+     "notFound",
+     "forbidden",
+ )
+@@ -16,15 +16,17 @@ from typing import cast
+ 
+ from twisted.web import http
+ from twisted.web.iweb import IRenderable, IRequest
+-from twisted.web.resource import Resource
++from twisted.web.resource import IResource, Resource
+ from twisted.web.template import renderElement, tags
+ 
+ 
+-class ErrorPage(Resource):
++class _ErrorPage(Resource):
+     """
+-    L{ErrorPage} is a resource that responds to all requests with a particular
+-    (parameterized) HTTP status code and a body consisting of HTML containing
+-    some descriptive text. This is useful for rendering simple error pages.
++    L{_ErrorPage} is a resource that responds to all requests with a particular
++    (parameterized) HTTP status code and an HTML body containing some
++    descriptive text. This is useful for rendering simple error pages.
++
++    @see: L{twisted.web.pages.errorPage}
+ 
+     @ivar _code: An integer HTTP status code which will be used for the
+         response.
+@@ -36,16 +38,6 @@ class ErrorPage(Resource):
+     """
+ 
+     def __init__(self, code: int, brief: str, detail: str) -> None:
+-        """
+-        @param code: An integer HTTP status code which will be used for the
+-            response.
+-
+-        @param brief: A short string which will be included in the response
+-            body as the page title.
+-
+-        @param detail: A longer string which will be included in the
+-            response body.
+-        """
+         super().__init__()
+         self._code: int = code
+         self._brief: str = brief
+@@ -74,7 +66,7 @@ class ErrorPage(Resource):
+ 
+     def getChild(self, path: bytes, request: IRequest) -> Resource:
+         """
+-        Handle all requests for which L{ErrorPage} lacks a child by returning
++        Handle all requests for which L{_ErrorPage} lacks a child by returning
+         this error page.
+ 
+         @param path: A path segment.
+@@ -84,32 +76,59 @@ class ErrorPage(Resource):
+         return self
+ 
+ 
++def errorPage(code: int, brief: str, detail: str) -> IResource:
++    """
++    Build a resource that responds to all requests with a particular HTTP
++    status code and an HTML body containing some descriptive text. This is
++    useful for rendering simple error pages.
++
++    The resource dynamically handles all paths below it. Use
++    L{IResource.putChild()} override specific path.
++
++    @param code: An integer HTTP status code which will be used for the
++        response.
++
++    @param brief: A short string which will be included in the response
++        body as the page title.
++
++    @param detail: A longer string which will be included in the
++        response body.
++
++    @returns: An L{IResource}
++    """
++    return _ErrorPage(code, brief, detail)
++
++
+ def notFound(
+     brief: str = "No Such Resource",
+     message: str = "Sorry. No luck finding that resource.",
+-) -> ErrorPage:
++) -> IResource:
+     """
+-    Generate an L{ErrorPage} with a 404 Not Found status code.
++    Generate an L{IResource} with a 404 Not Found status code.
++
++    @see: L{twisted.web.pages.errorPage}
+ 
+     @param brief: A short string displayed as the page title.
+ 
+     @param brief: A longer string displayed in the page body.
+ 
+-    @returns: An L{ErrorPage}
++    @returns: An L{IResource}
+     """
+-    return ErrorPage(http.NOT_FOUND, brief, message)
++    return _ErrorPage(http.NOT_FOUND, brief, message)
+ 
+ 
+ def forbidden(
+     brief: str = "Forbidden Resource", message: str = "Sorry, resource is forbidden."
+-) -> ErrorPage:
++) -> IResource:
+     """
+-    Generate an L{ErrorPage} with a 403 Forbidden status code.
++    Generate an L{IResource} with a 403 Forbidden status code.
++
++    @see: L{twisted.web.pages.errorPage}
+ 
+     @param brief: A short string displayed as the page title.
+ 
+     @param brief: A longer string displayed in the page body.
+ 
+-    @returns: An L{ErrorPage}
++    @returns: An L{IResource}
+     """
+-    return ErrorPage(http.FORBIDDEN, brief, message)
++    return _ErrorPage(http.FORBIDDEN, brief, message)
+diff --git a/src/twisted/web/resource.py b/src/twisted/web/resource.py
+index de3b557..670940f 100644
+--- a/src/twisted/web/resource.py
++++ b/src/twisted/web/resource.py
+@@ -299,7 +299,7 @@ class _UnsafeErrorPage(Resource):
+     descriptive text.  This is useful for rendering simple error pages.
+ 
+     Deprecated in Twisted NEXT because it permits HTML injection; use
+-    L{twisted.web.pages.ErrorPage} instead.
++    L{twisted.web.pages.errorPage} instead.
+ 
+     @ivar template: A native string which will have a dictionary interpolated
+         into it to generate the response body.  The dictionary has the following
+@@ -387,7 +387,7 @@ ForbiddenResource = _UnsafeForbiddenResource
+ 
+ deprecatedModuleAttribute(
+     Version("Twisted", "NEXT", 0, 0),
+-    "Use twisted.web.pages.ErrorPage instead, which properly escapes HTML.",
++    "Use twisted.web.pages.errorPage instead, which properly escapes HTML.",
+     __name__,
+     "ErrorPage",
+ )
+diff --git a/src/twisted/web/test/test_pages.py b/src/twisted/web/test/test_pages.py
+index 1f66c16..acd9b97 100644
+--- a/src/twisted/web/test/test_pages.py
++++ b/src/twisted/web/test/test_pages.py
+@@ -10,11 +10,12 @@ from typing import cast
+ from twisted.trial.unittest import SynchronousTestCase
+ from twisted.web.http_headers import Headers
+ from twisted.web.iweb import IRequest
+-from twisted.web.pages import ErrorPage, forbidden, notFound
++from twisted.web.pages import errorPage, forbidden, notFound
++from twisted.web.resource import IResource
+ from twisted.web.test.requesthelper import DummyRequest
+ 
+ 
+-def _render(resource: ErrorPage) -> DummyRequest:
++def _render(resource: IResource) -> DummyRequest:
+     """
+     Render a response using the given resource.
+ 
+@@ -32,7 +33,7 @@ def _render(resource: ErrorPage) -> DummyRequest:
+ 
+ class ErrorPageTests(SynchronousTestCase):
+     """
+-    Test L{twisted.web.pages.ErrorPage} and its convencience helpers
++    Test L{twisted.web.pages._ErrorPage} and its public aliases L{errorPage},
+     L{notFound} and L{forbidden}.
+     """
+ 
+@@ -56,7 +57,7 @@ class ErrorPageTests(SynchronousTestCase):
+         The I{brief} and I{detail} parameters are HTML-escaped on render.
+         """
+         self.assertResponse(
+-            _render(ErrorPage(400, "A & B", "<script>alert('oops!')")),
++            _render(errorPage(400, "A & B", "<script>alert('oops!')")),
+             400,
+             (
+                 b"<!DOCTYPE html>\n"
+@@ -68,10 +69,10 @@ class ErrorPageTests(SynchronousTestCase):
+ 
+     def test_getChild(self):
+         """
+-        The C{getChild} method of L{ErrorPage} returns the L{ErrorPage} it is
+-        called on.
++        The C{getChild} method of the resource returned by L{errorPage} returns
++        the L{_ErrorPage} it is called on.
+         """
+-        page = ErrorPage(404, "foo", "bar")
++        page = errorPage(404, "foo", "bar")
+         self.assertIs(
+             page.getChild(b"name", DummyRequest([b""])),
+             page,
+diff --git a/src/twisted/web/test/test_resource.py b/src/twisted/web/test/test_resource.py
+index cb37942..72e9137 100644
+--- a/src/twisted/web/test/test_resource.py
++++ b/src/twisted/web/test/test_resource.py
+@@ -42,7 +42,7 @@ class ErrorPageTests(TestCase):
+ 
+         [warning] = self.flushWarnings()
+         self.assertEqual(warning["category"], DeprecationWarning)
+-        self.assertIn("twisted.web.pages.ErrorPage", warning["message"])
++        self.assertIn("twisted.web.pages.errorPage", warning["message"])
+ 
+     def test_deprecatedNoResource(self):
+         """
