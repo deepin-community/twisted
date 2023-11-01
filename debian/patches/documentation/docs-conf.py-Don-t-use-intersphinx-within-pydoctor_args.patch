@@ -1,0 +1,62 @@
+From: Carsten Schoenert <c.schoenert@t-online.de>
+Date: Sat, 15 Jan 2022 23:15:22 +0100
+Subject: docs/conf.py: Don't use --intersphinx within 'pydoctor_args'
+
+This option requires access to the internet which isn't allowed while
+package build.
+Further more the requests library doesn't allow access to local
+available files so using the wanted objects.inv files will need more
+effort to make this usable. Also currently only a few of this files are
+included in packages.
+---
+ docs/conf.py |  3 ++-
+ setup.cfg    | 22 +++++++++++-----------
+ 2 files changed, 13 insertions(+), 12 deletions(-)
+
+diff --git a/docs/conf.py b/docs/conf.py
+index 6484f9e..96f4a0a 100644
+--- a/docs/conf.py
++++ b/docs/conf.py
+@@ -251,7 +251,8 @@ traclinks_base_url = "https://twistedmatrix.com/trac"
+ # The inventory file may be None to use the default location at the given URI.
+ intersphinx_mapping = {
+     'py3': ('/usr/share/doc/python3-doc/html', None),
+-    "zopeinterface": ("https://zopeinterface.readthedocs.io/en/latest", None),
++    'python': ('http://docs.python.org/3', '/usr/share/doc/python3/html/objects.inv'),
++#    "zopeinterface": ("https://zopeinterface.readthedocs.io/en/latest", None),
+ }
+ # How long to cache remote inventories. Positive is a number of days,
+ # negative means infinite. The default is 5 days, which should be fine
+diff --git a/setup.cfg b/setup.cfg
+index 5ee127d..5d5fb85 100644
+--- a/setup.cfg
++++ b/setup.cfg
+@@ -245,17 +245,17 @@ privacy=
+     HIDDEN:twisted.internet.test
+     HIDDEN:twisted.test.*
+     PUBLIC:twisted.test.proto_helpers
+-intersphinx=
+-    https://docs.python.org/3/objects.inv
+-    https://cryptography.io/en/latest/objects.inv
+-    https://pyopenssl.readthedocs.io/en/stable/objects.inv
+-    https://hyperlink.readthedocs.io/en/stable/objects.inv
+-    https://twisted.org/constantly/docs/objects.inv
+-    https://twisted.org/incremental/docs/objects.inv
+-    https://python-hyper.org/projects/hyper-h2/en/stable/objects.inv
+-    https://priority.readthedocs.io/en/stable/objects.inv
+-    https://zopeinterface.readthedocs.io/en/latest/objects.inv
+-    https://automat.readthedocs.io/en/latest/objects.inv
++#intersphinx=
++#    https://docs.python.org/3/objects.inv
++#    https://cryptography.io/en/latest/objects.inv
++#    https://pyopenssl.readthedocs.io/en/stable/objects.inv
++#    https://hyperlink.readthedocs.io/en/stable/objects.inv
++#    https://twisted.org/constantly/docs/objects.inv
++#    https://twisted.org/incremental/docs/objects.inv
++#    https://python-hyper.org/projects/hyper-h2/en/stable/objects.inv
++#    https://priority.readthedocs.io/en/stable/objects.inv
++#    https://zopeinterface.readthedocs.io/en/latest/objects.inv
++#    https://automat.readthedocs.io/en/latest/objects.inv
+ 
+ ;
+ ; These options are used as default for the tox and direct command line usage.

@@ -1,0 +1,1224 @@
+From: Glyph <glyph@twistedmatrix.com>
+Date: Fri, 2 Sep 2022 12:07:41 +0200
+Subject: Merge pull request #11578 from twisted/10066-pydoctor-and-docs-ci
+
+ #10066 Update pydoctor and fail CI on pydoctor errors.
+
+Origin: https://github.com/twisted/twisted/pull/11578
+Bug-Debian: https://bugs.debian.org/1016315
+---
+ bin/admin/build-apidocs                            |  19 --
+ docs/conf.py                                       |  19 +-
+ setup.cfg                                          |  57 +++-
+ src/twisted/python/_pydoctor.py                    | 204 --------------
+ src/twisted/python/_pydoctortemplates/common.html  |  67 -----
+ src/twisted/python/_pydoctortemplates/footer.html  |  30 ---
+ src/twisted/python/_pydoctortemplates/header.html  |   7 -
+ .../python/_pydoctortemplates/subheader.html       |  29 ++
+ src/twisted/python/_release.py                     | 109 --------
+ src/twisted/python/test/test_pydoctor.py           | 208 ---------------
+ src/twisted/python/test/test_release.py            | 293 +--------------------
+ tox.ini                                            |  10 +-
+ 12 files changed, 100 insertions(+), 952 deletions(-)
+ delete mode 100755 bin/admin/build-apidocs
+ delete mode 100644 src/twisted/python/_pydoctor.py
+ delete mode 100644 src/twisted/python/_pydoctortemplates/common.html
+ delete mode 100644 src/twisted/python/_pydoctortemplates/footer.html
+ delete mode 100644 src/twisted/python/_pydoctortemplates/header.html
+ create mode 100644 src/twisted/python/_pydoctortemplates/subheader.html
+ delete mode 100644 src/twisted/python/test/test_pydoctor.py
+
+diff --git a/bin/admin/build-apidocs b/bin/admin/build-apidocs
+deleted file mode 100755
+index 734dadf..0000000
+--- a/bin/admin/build-apidocs
++++ /dev/null
+@@ -1,19 +0,0 @@
+-#!/usr/bin/env python
+-#
+-# Copyright (c) Twisted Matrix Laboratories.
+-# See LICENSE for details.
+-#
+-# This script is not meant to be distributed to users of Twisted.
+-# It is used for:
+-# * testing the API docs (via CI)
+-# * getting local version for API docs (via tox).
+-#
+-# The script is also used by pydoctor CI tests: tox -e twisted-apidoc
+-# https://github.com/twisted/pydoctor/blob/master/tox.ini
+-#
+-
+-import sys
+-
+-from twisted.python._release import BuildAPIDocsScript
+-
+-BuildAPIDocsScript().main(sys.argv[1:])
+diff --git a/docs/conf.py b/docs/conf.py
+index c86ec5b..0736ff3 100644
+--- a/docs/conf.py
++++ b/docs/conf.py
+@@ -229,24 +229,15 @@ if os.environ.get("READTHEDOCS", "") == "True":
+         _git_reference = rtd_version
+ 
+ _source_root = pathlib.Path(__file__).parent.parent / "src"
++_project_root = pathlib.Path(__file__).parent.parent
++_source_root = _project_root / "src"
+ pydoctor_args = [
+     "--quiet",
++    # pydoctor should not fail the sphinx build, we have another tox environment for that.
++    f"--config={_project_root}/setup.cfg",
+     f"--html-viewsource-base=https://github.com/twisted/twisted/tree/{_git_reference}/src",
+-    "--project-name=Twisted",
+-    "--project-url=https://twistedmatrix.com/",
+-    "--system-class=twisted.python._pydoctor.TwistedSystem",
+-    "--docformat=epytext",
+-    "--intersphinx=https://docs.python.org/3/objects.inv",
+-    "--intersphinx=https://cryptography.io/en/latest/objects.inv",
+-    "--intersphinx=https://pyopenssl.readthedocs.io/en/stable/objects.inv",
+-    "--intersphinx=https://hyperlink.readthedocs.io/en/stable/objects.inv",
+-    "--intersphinx=https://twisted.org/constantly/docs/objects.inv",
+-    "--intersphinx=https://twisted.org/incremental/docs/objects.inv",
+-    "--intersphinx=https://python-hyper.org/projects/hyper-h2/en/stable/objects.inv",
+-    "--intersphinx=https://priority.readthedocs.io/en/stable/objects.inv",
+-    "--intersphinx=https://zopeinterface.readthedocs.io/en/latest/objects.inv",
+-    "--intersphinx=https://automat.readthedocs.io/en/latest/objects.inv",
+     f"--project-base-dir={_source_root}",
++    f"--template-dir={_source_root}/twisted/python/_pydoctortemplates",
+     "--html-output={outdir}/api",
+     str(_source_root / "twisted"),
+ ]
+diff --git a/setup.cfg b/setup.cfg
+index 3d5ac81..5ee127d 100644
+--- a/setup.cfg
++++ b/setup.cfg
+@@ -57,7 +57,7 @@ test =
+ ; release scripts and process.
+ dev_release =
+     towncrier ~= 19.2
+-    pydoctor ~= 21.9.0; python_version >= "3.6"
++    pydoctor ~= 22.7.0
+     sphinx-rtd-theme ~= 0.5
+     readthedocs-sphinx-ext ~= 2.1
+     sphinx >= 4.1.2, <6
+@@ -211,3 +211,58 @@ per-file-ignores =
+         W291,
+         # blank line contains whitespace
+         W293,
++
++[tool:pydoctor]
++quiet=1
++warnings-as-errors=true
++project-name=Twisted
++project-url=https://twisted.org/
++docformat=epytext
++theme=readthedocs
++privacy=
++    HIDDEN:twisted.words.test
++    HIDDEN:twisted.web.test
++    HIDDEN:twisted.spread.test
++    HIDDEN:twisted.scripts.test
++    HIDDEN:twisted.runner.test
++    HIDDEN:twisted.python.test
++    HIDDEN:twisted.protocols.haproxy.test
++    HIDDEN:twisted.protocols.test
++    HIDDEN:twisted.positioning.test
++    HIDDEN:twisted.persisted.test
++    HIDDEN:twisted.pair.test
++    HIDDEN:twisted.names.test
++    HIDDEN:twisted.mail.test
++    HIDDEN:twisted.logger.test
++    HIDDEN:twisted.cred.test
++    HIDDEN:twisted.conch.test
++    HIDDEN:twisted.application.runner.test
++    HIDDEN:twisted.application.twist.test
++    HIDDEN:twisted.application.test
++    HIDDEN:twisted._threads.test
++    HIDDEN:twisted.trial._dist.test
++    HIDDEN:twisted.trial.test
++    HIDDEN:twisted.internet.test
++    HIDDEN:twisted.test.*
++    PUBLIC:twisted.test.proto_helpers
++intersphinx=
++    https://docs.python.org/3/objects.inv
++    https://cryptography.io/en/latest/objects.inv
++    https://pyopenssl.readthedocs.io/en/stable/objects.inv
++    https://hyperlink.readthedocs.io/en/stable/objects.inv
++    https://twisted.org/constantly/docs/objects.inv
++    https://twisted.org/incremental/docs/objects.inv
++    https://python-hyper.org/projects/hyper-h2/en/stable/objects.inv
++    https://priority.readthedocs.io/en/stable/objects.inv
++    https://zopeinterface.readthedocs.io/en/latest/objects.inv
++    https://automat.readthedocs.io/en/latest/objects.inv
++
++;
++; These options are used as default for the tox and direct command line usage.
++; They are designed to help with documentation development.
++; For documentation publishing, they need to be overriden in sphinx's conf.py
++; No custom `--template-dir` is use here.
++; We do have a custom template for final documentation publishing.
++project-base-dir=src/twisted
++html-output=docs/_build/api
++html-viewsource-base=https://github.com/twisted/twisted/tree/trunk/src
+diff --git a/src/twisted/python/_pydoctor.py b/src/twisted/python/_pydoctor.py
+deleted file mode 100644
+index 08cfa24..0000000
+--- a/src/twisted/python/_pydoctor.py
++++ /dev/null
+@@ -1,204 +0,0 @@
+-# -*- test-case-name: twisted.python.test.test_pydoctor -*-
+-# Copyright (c) Twisted Matrix Laboratories.
+-# See LICENSE for details.
+-
+-"""
+-Support for a few things specific to documenting Twisted using pydoctor.
+-
+-FIXME: https://github.com/twisted/pydoctor/issues/106
+-This documentation does not link to pydoctor API as there is no public API yet.
+-"""
+-
+-import ast
+-from typing import Optional
+-
+-from pydoctor import astbuilder, model, zopeinterface  # type: ignore[import]
+-from pydoctor.sphinx import SphinxInventory  # type: ignore[import]
+-
+-
+-class TwistedSphinxInventory(SphinxInventory):
+-    """
+-    Custom SphinxInventory to work around broken external references to
+-    Sphinx.
+-
+-    All exceptions should be reported upstream and a comment should be created
+-    with a link to the upstream report.
+-    """
+-
+-    def getLink(self, name):
+-        """
+-        Resolve the full URL for a cross reference.
+-
+-        @param name: Value of the cross reference.
+-        @type name: L{str}
+-
+-        @return: A full URL for the I{name} reference or L{None} if no link was
+-            found.
+-        @rtype: L{str} or L{None}
+-        """
+-        result = super().getLink(name)
+-        if result is not None:
+-            # We already got a link. Look no further.
+-            return result
+-
+-        if name.startswith("zope.interface."):
+-            # This is a link from zope.interface. which is not advertised in
+-            # the Sphinx inventory.
+-            # See if the link is a known broken link which should be handled
+-            # as an exceptional case.
+-            # We get the base URL from IInterface which is assume that is
+-            # always and already well defined in the Sphinx index.
+-            baseURL, _ = self._links.get(
+-                "zope.interface.interfaces.IInterface", (None, None)
+-            )
+-
+-            if baseURL is None:
+-                # Most probably the zope.interface inventory was
+-                # not loaded.
+-                return None
+-
+-            if name == "zope.interface.adapter.AdapterRegistry":
+-                # FIXME:
+-                # https://github.com/zopefoundation/zope.interface/issues/41
+-                relativeLink: Optional[str] = "adapter.html"
+-            else:
+-                # Not a known exception.
+-                relativeLink = None
+-
+-            if relativeLink is None:
+-                return None
+-
+-            return f"{baseURL}/{relativeLink}"
+-
+-        return None
+-
+-
+-def getDeprecated(self, decorators):
+-    """
+-    With a list of decorators, and the object it is running on, set the
+-    C{_deprecated_info} flag if any of the decorators are a Twisted deprecation
+-    decorator.
+-    """
+-    for a in decorators:
+-        if isinstance(a, ast.Call):
+-            fn = astbuilder.node2fullname(a.func, self)
+-
+-            if fn in (
+-                "twisted.python.deprecate.deprecated",
+-                "twisted.python.deprecate.deprecatedProperty",
+-            ):
+-                try:
+-                    self._deprecated_info = deprecatedToUsefulText(self, self.name, a)
+-                except AttributeError:
+-                    # It's a reference or something that we can't figure out
+-                    # from the AST.
+-                    pass
+-
+-
+-class TwistedModuleVisitor(zopeinterface.ZopeInterfaceModuleVisitor):
+-    def visit_ClassDef(self, node):
+-        """
+-        Called when a class definition is visited.
+-        """
+-        super().visit_ClassDef(node)
+-        try:
+-            cls = self.builder.current.contents[node.name]
+-        except KeyError:
+-            # Classes inside functions are ignored.
+-            return
+-
+-        getDeprecated(cls, cls.raw_decorators)
+-
+-    def visit_FunctionDef(self, node):
+-        """
+-        Called when a function definition is visited.
+-        """
+-        super().visit_FunctionDef(node)
+-        try:
+-            func = self.builder.current.contents[node.name]
+-        except KeyError:
+-            # Inner functions are ignored.
+-            return
+-
+-        if func.decorators:
+-            getDeprecated(func, func.decorators)
+-
+-
+-def versionToUsefulObject(version):
+-    """
+-    Change an AST C{Version()} to a real one.
+-    """
+-    from incremental import Version
+-
+-    package = version.args[0].s
+-    major = getattr(version.args[1], "n", getattr(version.args[1], "s", None))
+-    assert isinstance(major, int) or major == "NEXT"
+-    return Version(package, major, *(x.n for x in version.args[2:] if x))
+-
+-
+-def deprecatedToUsefulText(visitor, name, deprecated):
+-    """
+-    Change a C{@deprecated} to a display string.
+-    """
+-    from twisted.python.deprecate import _getDeprecationWarningString
+-
+-    version = versionToUsefulObject(deprecated.args[0])
+-    if len(deprecated.args) > 1 and deprecated.args[1]:
+-        if isinstance(deprecated.args[1], ast.Name):
+-            replacement = visitor.resolveName(deprecated.args[1].id)
+-        else:
+-            replacement = deprecated.args[1].s
+-    else:
+-        replacement = None
+-        for keyword in deprecated.keywords:
+-            if keyword.arg == "replacement":
+-                replacement = keyword.value.s
+-
+-    return _getDeprecationWarningString(name, version, replacement=replacement) + "."
+-
+-
+-class TwistedASTBuilder(zopeinterface.ZopeInterfaceASTBuilder):
+-    # Vistor is not a typo...
+-    ModuleVistor = TwistedModuleVisitor
+-
+-
+-class TwistedSystem(zopeinterface.ZopeInterfaceSystem):
+-    """
+-    A PyDoctor "system" used to generate the docs.
+-    """
+-
+-    defaultBuilder = TwistedASTBuilder
+-
+-    def __init__(self, options=None):
+-        super().__init__(options=options)
+-        # Use custom SphinxInventory so that we can resolve valid L{} markup
+-        # for which the Sphinx inventory is not published or broken.
+-        self.intersphinx = TwistedSphinxInventory(
+-            logger=self.msg, project_name=self.projectname
+-        )
+-
+-    def privacyClass(self, documentable):
+-        """
+-        Report the privacy level for an object.
+-
+-        Hide all tests with the exception of L{twisted.test.proto_helpers}.
+-
+-        param obj: Object for which the privacy is reported.
+-        type obj: C{model.Documentable}
+-
+-        rtype: C{model.PrivacyClass} member
+-        """
+-        if documentable.fullName() == "twisted.test":
+-            # Match this package exactly, so that proto_helpers
+-            # below is visible
+-            return model.PrivacyClass.VISIBLE
+-
+-        current = documentable
+-        while current:
+-            if current.fullName() == "twisted.test.proto_helpers":
+-                return model.PrivacyClass.VISIBLE
+-            if isinstance(current, model.Package) and current.name == "test":
+-                return model.PrivacyClass.HIDDEN
+-            current = current.parent
+-
+-        return super().privacyClass(documentable)
+diff --git a/src/twisted/python/_pydoctortemplates/common.html b/src/twisted/python/_pydoctortemplates/common.html
+deleted file mode 100644
+index 9a6ed81..0000000
+--- a/src/twisted/python/_pydoctortemplates/common.html
++++ /dev/null
+@@ -1,67 +0,0 @@
+-<!DOCTYPE html>
+-<html xmlns:t="http://twistedmatrix.com/ns/twisted.web.template/0.1">
+-  <meta name="pydoctor-template-version" content="1" />
+-
+-  <t:transparent t:render="head">Head</t:transparent>
+-
+-  <body>
+-
+-    <div t:render="header" />
+-
+-    <t:transparent t:render="nav">Nav</t:transparent>
+-
+-    <div class="container" t:render="subheader" />
+-
+-    <div class="container">
+-
+-      <div class="page-header">
+-        <t:slot name="heading"><h1>Heading</h1></t:slot>
+-        <div id="showPrivate">
+-          <button class="btn btn-link" onclick="togglePrivate()">Toggle Private API</button>
+-        </div>
+-      </div>
+-
+-      <div class="categoryHeader">
+-        <t:slot name="category">something documentation</t:slot>
+-      </div>
+-
+-      <div class="extrasDocstring">
+-        <t:slot name="extras">
+-          Inheritance info.
+-        </t:slot>
+-        <p><a t:render="inhierarchy">View In Hierarchy</a></p>
+-      </div>
+-
+-      <t:transparent t:render="deprecated" />
+-
+-      <div class="moduleDocstring">
+-        <t:slot name="docstring">
+-          A docstring.
+-        </t:slot>
+-      </div>
+-
+-      <div id="splitTables">
+-        <t:slot name="mainTable" />
+-        <t:transparent t:render="baseTables">
+-          <p class="inheritedFrom">
+-            Inherited from <t:slot name="baseName" />:
+-          </p>
+-          <t:slot name="baseTable" />
+-          </t:transparent>
+-
+-          <t:slot name="packageInitTable"> </t:slot>
+-      </div>
+-
+-      <div id="childList">
+-
+-        <t:slot name="childlist"> </t:slot>
+-
+-      </div>
+-    </div>
+-
+-    <footer t:render="footer" />
+-
+-    <script src="pydoctor.js" type='text/javascript'></script>
+-
+-  </body>
+-</html>
+diff --git a/src/twisted/python/_pydoctortemplates/footer.html b/src/twisted/python/_pydoctortemplates/footer.html
+deleted file mode 100644
+index 211c322..0000000
+--- a/src/twisted/python/_pydoctortemplates/footer.html
++++ /dev/null
+@@ -1,30 +0,0 @@
+-<footer xmlns:t="http://twistedmatrix.com/ns/twisted.web.template/0.1" class="navbar navbar-default">
+-  <meta name="pydoctor-template-version" content="1" />
+-
+-  <div class="container">
+-    <a href="index.html">API Documentation</a> for <t:slot name="project" />,
+-  generated by <a href="https://github.com/twisted/pydoctor/">pydoctor</a>
+-    <t:slot name="pydoctor_version" /> at <t:slot name="buildtime" />.
+-  </div>
+-
+-  <!-- Google analytics, obviously. -->
+-  <script src="//www.google-analytics.com/urchin.js" type="text/javascript"></script>
+-  <script type="text/javascript">
+-    _uacct = "UA-99018-6";
+-    urchinTracker();
+-  </script>
+-
+-  <!-- If the documentation isn't current, insert a current link. -->
+-  <script type="text/javascript">
+-    if (window.location.pathname.indexOf('/current/') == -1) {
+-      <!-- Give the user a link to this page, but in the current version of the docs. -->
+-      var link = document.getElementById('current-docs-link');
+-      link.href = window.location.pathname.replace(/\/\d+\.\d+\.\d+\/api\//, '/current/api/');
+-      <!-- And make it visible -->
+-      var container = document.getElementById('current-docs-container');
+-      container.style.display = "";
+-      delete link;
+-      delete container;
+-    }
+-  </script>
+-</footer>
+diff --git a/src/twisted/python/_pydoctortemplates/header.html b/src/twisted/python/_pydoctortemplates/header.html
+deleted file mode 100644
+index 5dff234..0000000
+--- a/src/twisted/python/_pydoctortemplates/header.html
++++ /dev/null
+@@ -1,7 +0,0 @@
+-<div style="display: none" id="current-docs-container" class="container">
+-  <div class="col-sm-12">
+-    <a id="current-docs-link">
+-      Go to the latest version of this document.
+-    </a>
+-  </div>
+-</div>
+diff --git a/src/twisted/python/_pydoctortemplates/subheader.html b/src/twisted/python/_pydoctortemplates/subheader.html
+new file mode 100644
+index 0000000..7db8ac4
+--- /dev/null
++++ b/src/twisted/python/_pydoctortemplates/subheader.html
+@@ -0,0 +1,29 @@
++<div style="display: none" id="current-docs-container" class="container">
++  <div class="col-sm-12">
++    <a id="current-docs-link">
++      Go to the latest version of this document.
++    </a>
++  </div>
++
++  <!-- Google analytics, obviously. -->
++  <script src="//www.google-analytics.com/urchin.js" type="text/javascript"></script>
++  <script type="text/javascript">
++    _uacct = "UA-99018-6";
++    urchinTracker();
++  </script>
++
++  <!-- If the documentation isn't current, insert a current link. -->
++  <script type="text/javascript">
++    if (window.location.pathname.indexOf('/current/') == -1) {
++      <!-- Give the user a link to this page, but in the current version of the docs. -->
++      var link = document.getElementById('current-docs-link');
++      link.href = window.location.pathname.replace(/\/\d+\.\d+\.\d+\/api\//, '/current/api/');
++      <!-- And make it visible -->
++      var container = document.getElementById('current-docs-container');
++      container.style.display = "";
++      delete link;
++      delete container;
++    }
++  </script>
++  
++</div>
+diff --git a/src/twisted/python/_release.py b/src/twisted/python/_release.py
+index 58796f4..b405f73 100644
+--- a/src/twisted/python/_release.py
++++ b/src/twisted/python/_release.py
+@@ -263,71 +263,6 @@ class NoDocumentsFound(Exception):
+     """
+ 
+ 
+-class APIBuilder:
+-    """
+-    Generate API documentation from source files using
+-    U{pydoctor<https://github.com/twisted/pydoctor>}.  This requires
+-    pydoctor to be installed and usable.
+-    """
+-
+-    def build(self, projectName, projectURL, sourceURL, packagePath, outputPath):
+-        """
+-        Call pydoctor's entry point with options which will generate HTML
+-        documentation for the specified package's API.
+-
+-        @type projectName: C{str}
+-        @param projectName: The name of the package for which to generate
+-            documentation.
+-
+-        @type projectURL: C{str}
+-        @param projectURL: The location (probably an HTTP URL) of the project
+-            on the web.
+-
+-        @type sourceURL: C{str}
+-        @param sourceURL: The location (probably an HTTP URL) of the root of
+-            the source browser for the project.
+-
+-        @type packagePath: L{FilePath}
+-        @param packagePath: The path to the top-level of the package named by
+-            C{projectName}.
+-
+-        @type outputPath: L{FilePath}
+-        @param outputPath: An existing directory to which the generated API
+-            documentation will be written.
+-        """
+-        intersphinxes = []
+-
+-        for intersphinx in intersphinxURLs:
+-            intersphinxes.append("--intersphinx")
+-            intersphinxes.append(intersphinx)
+-
+-        from pydoctor.driver import main  # type: ignore[import]
+-
+-        templatesPath = FilePath(__file__).parent().child("_pydoctortemplates")
+-
+-        args = [
+-            "--project-name",
+-            projectName,
+-            "--project-url",
+-            projectURL,
+-            "--system-class",
+-            "twisted.python._pydoctor.TwistedSystem",
+-            "--project-base-dir",
+-            packagePath.parent().path,
+-            "--template-dir",
+-            templatesPath.path,
+-            "--html-viewsource-base",
+-            sourceURL,
+-            "--html-output",
+-            outputPath.path,
+-            "--quiet",
+-            "--make-html",
+-            "--warnings-as-errors",
+-        ] + intersphinxes
+-        args.append(packagePath.path)
+-        main(args)
+-
+-
+ class SphinxBuilder:
+     """
+     Generate HTML documentation using Sphinx.
+@@ -445,50 +380,6 @@ class NotWorkingDirectory(Exception):
+     """
+ 
+ 
+-class BuildAPIDocsScript:
+-    """
+-    A thing for building API documentation. See L{main}.
+-    """
+-
+-    def buildAPIDocs(self, projectRoot, output):
+-        """
+-        Build the API documentation of Twisted, with our project policy.
+-
+-        @param projectRoot: A L{FilePath} representing the root of the Twisted
+-            checkout.
+-        @param output: A L{FilePath} pointing to the desired output directory.
+-        """
+-        version = Project(projectRoot.child("twisted")).getVersion()
+-        versionString = version.base()
+-        sourceURL = (
+-            "https://github.com/twisted/twisted/tree/"
+-            "twisted-%s" % (versionString,) + "/src"
+-        )
+-        apiBuilder = APIBuilder()
+-        apiBuilder.build(
+-            "Twisted",
+-            "https://twistedmatrix.com/",
+-            sourceURL,
+-            projectRoot.child("twisted"),
+-            output,
+-        )
+-
+-    def main(self, args):
+-        """
+-        Build API documentation.
+-
+-        @type args: list of str
+-        @param args: The command line arguments to process.  This must contain
+-            two strings: the path to the root of the Twisted checkout, and a
+-            path to an output directory.
+-        """
+-        if len(args) != 2:
+-            sys.exit(
+-                "Must specify two arguments: " "Twisted checkout and destination path"
+-            )
+-        self.buildAPIDocs(FilePath(args[0]), FilePath(args[1]))
+-
+-
+ class CheckNewsfragmentScript:
+     """
+     A thing for checking whether a checkout has a newsfragment.
+diff --git a/src/twisted/python/test/test_pydoctor.py b/src/twisted/python/test/test_pydoctor.py
+deleted file mode 100644
+index 6d8ca53..0000000
+--- a/src/twisted/python/test/test_pydoctor.py
++++ /dev/null
+@@ -1,208 +0,0 @@
+-# Copyright (c) Twisted Matrix Laboratories.
+-# See LICENSE for details.
+-
+-"""
+-Tests for L{twisted.python._pydoctor}.
+-"""
+-from twisted.python.reflect import requireModule
+-from twisted.trial.unittest import TestCase
+-
+-model = requireModule("pydoctor.model")
+-pydoctorSkip = None
+-TwistedSphinxInventory = object
+-TwistedSystem = object
+-if model is None:
+-    pydoctorSkip = "Pydoctor is not present."
+-else:
+-    # We have a valid pydoctor.
+-    from twisted.python._pydoctor import TwistedSphinxInventory, TwistedSystem
+-
+-
+-class TwistedSystemTests(TestCase):
+-    """
+-    Tests for L{TwistedSystem}.
+-    """
+-
+-    skip = pydoctorSkip
+-
+-    def test_initCustomSphinxInventory(self):
+-        """
+-        After initialization it has a custom C{intersphinx} member.
+-        """
+-        sut = TwistedSystem()
+-
+-        self.assertIsInstance(sut.intersphinx, TwistedSphinxInventory)
+-
+-    def test_privacyClassBaseTestPackage(self):
+-        """
+-        The base I{twisted.test} package is visible to allow traversal to a
+-        few selected test API which is visible.
+-        """
+-        sut = TwistedSystem()
+-        twistedPackage = model.Package(
+-            system=sut,
+-            name="twisted",
+-            parent=None,
+-        )
+-        twistedTestPackage = model.Package(
+-            system=sut,
+-            name="test",
+-            parent=twistedPackage,
+-        )
+-
+-        result = sut.privacyClass(twistedTestPackage)
+-
+-        self.assertIs(result, model.PrivacyClass.VISIBLE)
+-
+-    def test_privacyClassProtoHelpers(self):
+-        """
+-        The I{twisted.test.proto_helpers} module is visible.
+-        """
+-        sut = TwistedSystem()
+-        twistedPackage = model.Package(
+-            system=sut,
+-            name="twisted",
+-            parent=None,
+-        )
+-        twistedTestPackage = model.Package(
+-            system=sut,
+-            name="test",
+-            parent=twistedPackage,
+-        )
+-        twistedProtoHelpersModule = model.Module(
+-            system=sut,
+-            name="proto_helpers",
+-            parent=twistedTestPackage,
+-        )
+-
+-        result = sut.privacyClass(twistedProtoHelpersModule)
+-
+-        self.assertIs(result, model.PrivacyClass.VISIBLE)
+-
+-    def test_privacyClassChildTestModule(self):
+-        """
+-        Any child of the I{twisted.test} package is hidden.
+-        """
+-        sut = TwistedSystem()
+-        twistedPackage = model.Package(
+-            system=sut,
+-            name="twisted",
+-            parent=None,
+-        )
+-        twistedTestPackage = model.Package(
+-            system=sut,
+-            name="test",
+-            parent=twistedPackage,
+-        )
+-        twistedAnyTestModule = model.Module(
+-            system=sut,
+-            name="other_child",
+-            parent=twistedTestPackage,
+-        )
+-
+-        result = sut.privacyClass(twistedAnyTestModule)
+-
+-        self.assertIs(result, model.PrivacyClass.HIDDEN)
+-
+-    def test_privacyClassPublicCode(self):
+-        """
+-        Any child of the I{twisted} package has a privacy according to the
+-        general rules defined in pydoctor.
+-        """
+-        sut = TwistedSystem()
+-        twistedPackage = model.Package(
+-            system=sut,
+-            name="twisted",
+-            parent=None,
+-        )
+-        twistedSubProjectPackage = model.Package(
+-            system=sut,
+-            name="subproject",
+-            parent=twistedPackage,
+-        )
+-        twistedSubProjectModule = model.Module(
+-            system=sut,
+-            name="other_child",
+-            parent=twistedSubProjectPackage,
+-        )
+-        twistedPrivateModule = model.Module(
+-            system=sut,
+-            name="_private_child",
+-            parent=twistedSubProjectPackage,
+-        )
+-
+-        result = sut.privacyClass(twistedSubProjectPackage)
+-        self.assertIs(result, model.PrivacyClass.VISIBLE)
+-
+-        result = sut.privacyClass(twistedSubProjectModule)
+-        self.assertIs(result, model.PrivacyClass.VISIBLE)
+-
+-        result = sut.privacyClass(twistedPrivateModule)
+-        self.assertIs(result, model.PrivacyClass.PRIVATE)
+-
+-
+-class TwistedSphinxInventoryTests(TestCase):
+-    """
+-    Tests for L{TwistedSphinxInventory}.
+-    """
+-
+-    skip = pydoctorSkip
+-
+-    def getInventoryWithZope(self):
+-        """
+-        Initialized a pre-loaded inventory.
+-
+-        @return: A new inventory which already has a few I{zope.interface}
+-            inter sphinx links loaded.
+-        @rtype: L{TwistedSphinxInventory}
+-        """
+-        inventory = TwistedSphinxInventory(logger=object(), project_name="Super Duper")
+-
+-        zopeBaseURL = "https://zope.tld"
+-        zopeAPIURL = "api.html#$"
+-        inventory._links.update(
+-            {
+-                "zope.interface.interfaces.IInterface": (zopeBaseURL, zopeAPIURL),
+-                "zope.interface.declarations.implementer": (zopeBaseURL, zopeAPIURL),
+-            }
+-        )
+-
+-        return inventory
+-
+-    def test_getLinkExistentInInterSphinx(self):
+-        """
+-        Return the full URL based on pre-loaded inter sphinx objects.
+-        """
+-        sut = self.getInventoryWithZope()
+-
+-        result = sut.getLink("zope.interface.interfaces.IInterface")
+-
+-        self.assertEqual(
+-            "https://zope.tld/api.html#zope.interface.interfaces.IInterface", result
+-        )
+-
+-    def test_getLinkZopeNonExistent(self):
+-        """
+-        Any reference to I{zope.interface} which is not in the inter sphinx
+-        database returns L{None}.
+-        """
+-        sut = self.getInventoryWithZope()
+-
+-        # Interface is at zope.interface.interfaces.IInterface so using the
+-        # short name will fail to find the url.
+-        result = sut.getLink("zope.interface.Interface")
+-        self.assertIsNone(result)
+-        # Any unknown reference returns None.
+-        result = sut.getLink("zope.interface.NoSuchReference")
+-        self.assertIsNone(result)
+-
+-    def test_getLinkZopeAdapterRegistry(self):
+-        """
+-        I{zope.interface.adapter.AdapterRegistry} is a special case for which
+-        the link the narrative docs is returned as there is no API docs yet.
+-        """
+-        sut = self.getInventoryWithZope()
+-
+-        result = sut.getLink("zope.interface.adapter.AdapterRegistry")
+-
+-        self.assertEqual("https://zope.tld/adapter.html", result)
+diff --git a/src/twisted/python/test/test_release.py b/src/twisted/python/test/test_release.py
+index 83934bd..d55a40e 100644
+--- a/src/twisted/python/test/test_release.py
++++ b/src/twisted/python/test/test_release.py
+@@ -7,9 +7,6 @@ Tests for L{twisted.python.release} and L{twisted.python._release}.
+ All of these tests are skipped on platforms other than Linux, as the release is
+ only ever performed on Linux.
+ """
+-
+-
+-import functools
+ import glob
+ import operator
+ import os
+@@ -17,7 +14,7 @@ import shutil
+ import sys
+ import tempfile
+ import textwrap
+-from io import BytesIO, StringIO
++from io import StringIO
+ from subprocess import CalledProcessError
+ from unittest import skipIf
+ 
+@@ -25,8 +22,6 @@ from incremental import Version
+ 
+ from twisted.python import release
+ from twisted.python._release import (
+-    APIBuilder,
+-    BuildAPIDocsScript,
+     CheckNewsfragmentScript,
+     GitCommand,
+     IVCSCommand,
+@@ -41,8 +36,7 @@ from twisted.python._release import (
+ )
+ from twisted.python.filepath import FilePath
+ from twisted.python.procutils import which
+-from twisted.python.reflect import requireModule
+-from twisted.trial.unittest import FailTest, SkipTest, TestCase
++from twisted.trial.unittest import TestCase
+ 
+ if sys.platform != "win32":
+     skip = None
+@@ -318,289 +312,6 @@ class UtilityTests(ExternalTempdirTestCase):
+             self.assertEqual(f.read(), expected)
+ 
+ 
+-def doNotFailOnNetworkError(func):
+-    """
+-    A decorator which makes APIBuilder tests not fail because of intermittent
+-    network failures -- mamely, APIBuilder being unable to get the "object
+-    inventory" of other projects.
+-
+-    @param func: The function to decorate.
+-
+-    @return: A decorated function which won't fail if the object inventory
+-        fetching fails.
+-    """
+-
+-    @functools.wraps(func)
+-    def wrapper(*a, **kw):
+-        try:
+-            func(*a, **kw)
+-        except FailTest as e:
+-            if e.args[0].startswith("'Failed to get object inventory from "):
+-                raise SkipTest(
+-                    (
+-                        "This test is prone to intermittent network errors. "
+-                        "See ticket 8753. Exception was: {!r}"
+-                    ).format(e)
+-                )
+-            raise
+-
+-    return wrapper
+-
+-
+-class DoNotFailTests(TestCase):
+-    """
+-    Tests for L{doNotFailOnNetworkError}.
+-    """
+-
+-    def test_skipsOnAssertionError(self):
+-        """
+-        When the test raises L{FailTest} and the assertion failure starts with
+-        "'Failed to get object inventory from ", the test will be skipped
+-        instead.
+-        """
+-
+-        @doNotFailOnNetworkError
+-        def inner():
+-            self.assertEqual("Failed to get object inventory from blah", "")
+-
+-        try:
+-            inner()
+-        except Exception as e:
+-            self.assertIsInstance(e, SkipTest)
+-
+-    def test_doesNotSkipOnDifferentError(self):
+-        """
+-        If there is a L{FailTest} that is not the intersphinx fetching error,
+-        it will be passed through.
+-        """
+-
+-        @doNotFailOnNetworkError
+-        def inner():
+-            self.assertEqual("Error!!!!", "")
+-
+-        try:
+-            inner()
+-        except Exception as e:
+-            self.assertIsInstance(e, FailTest)
+-
+-
+-pydoctor = requireModule("pydoctor")
+-
+-
+-@skipIf(pydoctor is None, "Pydoctor is not present.")
+-class APIBuilderTests(ExternalTempdirTestCase):
+-    """
+-    Tests for L{APIBuilder}.
+-    """
+-
+-    @doNotFailOnNetworkError
+-    def test_build(self):
+-        """
+-        L{APIBuilder.build} writes an index file which includes the name of the
+-        project specified.
+-        """
+-        stdout = BytesIO()
+-        self.patch(sys, "stdout", stdout)
+-
+-        projectName = "Foobar"
+-        packageName = "quux"
+-        projectURL = "scheme:project"
+-        sourceURL = "scheme:source"
+-        docstring = "text in docstring"
+-        privateDocstring = "should also appear in output"
+-
+-        inputPath = FilePath(self.mktemp()).child(packageName)
+-        inputPath.makedirs()
+-        inputPath.child("__init__.py").setContent(
+-            "def foo():\n"
+-            "    '{}'\n"
+-            "def _bar():\n"
+-            "    '{}'".format(docstring, privateDocstring).encode()
+-        )
+-
+-        outputPath = FilePath(self.mktemp())
+-
+-        builder = APIBuilder()
+-        builder.build(projectName, projectURL, sourceURL, inputPath, outputPath)
+-
+-        indexPath = outputPath.child("index.html")
+-
+-        self.assertTrue(
+-            indexPath.exists(), f"API index {outputPath.path!r} did not exist."
+-        )
+-        self.assertIn(
+-            f'<a href="{projectURL}" class="projecthome">{projectName}</a>',
+-            indexPath.getContent().decode(),
+-            "Project name/location not in file contents.",
+-        )
+-
+-        quuxPath = outputPath.child("quux.html")
+-        self.assertTrue(
+-            quuxPath.exists(),
+-            f"Package documentation file {quuxPath.path!r} did not exist.",
+-        )
+-        self.assertIn(
+-            docstring,
+-            quuxPath.getContent().decode(),
+-            "Docstring not in package documentation file.",
+-        )
+-        self.assertIn(
+-            f'<a href="{sourceURL}/{packageName}/__init__.py" class="sourceLink">'
+-            f"(source)</a>",
+-            quuxPath.getContent().decode(),
+-        )
+-        self.assertIn(
+-            '<a class="sourceLink" href="%s/%s/__init__.py#L1">'
+-            % (sourceURL, packageName),
+-            quuxPath.getContent().decode(),
+-        )
+-        self.assertIn(privateDocstring, quuxPath.getContent().decode())
+-
+-        self.assertEqual(stdout.getvalue(), b"")
+-
+-    @doNotFailOnNetworkError
+-    def test_buildWithPolicy(self):
+-        """
+-        L{BuildAPIDocsScript.buildAPIDocs} builds the API docs with values
+-        appropriate for the Twisted project.
+-        """
+-        stdout = BytesIO()
+-        self.patch(sys, "stdout", stdout)
+-        docstring = "text in docstring"
+-
+-        projectRoot = FilePath(self.mktemp())
+-        packagePath = projectRoot.child("twisted")
+-        packagePath.makedirs()
+-        packagePath.child("__init__.py").setContent(
+-            "def foo():\n" "    '{}'\n".format(docstring).encode()
+-        )
+-        packagePath.child("_version.py").setContent(
+-            genVersion("twisted", 1, 0, 0).encode()
+-        )
+-        outputPath = FilePath(self.mktemp())
+-
+-        script = BuildAPIDocsScript()
+-        script.buildAPIDocs(projectRoot, outputPath)
+-
+-        indexPath = outputPath.child("index.html")
+-        self.assertTrue(
+-            indexPath.exists(), f"API index {outputPath.path} did not exist."
+-        )
+-        self.assertIn(
+-            '<a href="https://twistedmatrix.com/" class="projecthome">Twisted</a>',
+-            indexPath.getContent().decode(),
+-            "Project name/location not in file contents.",
+-        )
+-
+-        twistedPath = outputPath.child("twisted.html")
+-        self.assertTrue(
+-            twistedPath.exists(),
+-            f"Package documentation file {twistedPath.path!r} did not exist.",
+-        )
+-        self.assertIn(
+-            docstring,
+-            twistedPath.getContent().decode(),
+-            "Docstring not in package documentation file.",
+-        )
+-        # Here we check that it figured out the correct version based on the
+-        # source code.
+-        self.assertIn(
+-            '<a href="https://github.com/twisted/twisted/tree/'
+-            'twisted-1.0.0/src/twisted/__init__.py" class="sourceLink">(source)</a>',
+-            twistedPath.getContent().decode(),
+-        )
+-
+-        self.assertEqual(stdout.getvalue(), b"")
+-
+-    @doNotFailOnNetworkError
+-    def test_buildWithDeprecated(self):
+-        """
+-        The templates and System for Twisted includes adding deprecations.
+-        """
+-        stdout = BytesIO()
+-        self.patch(sys, "stdout", stdout)
+-
+-        projectName = "Foobar"
+-        packageName = "quux"
+-        projectURL = "scheme:project"
+-        sourceURL = "scheme:source"
+-        docstring = "text in docstring"
+-        privateDocstring = "should also appear in output"
+-
+-        inputPath = FilePath(self.mktemp()).child(packageName)
+-        inputPath.makedirs()
+-        inputPath.child("__init__.py").setContent(
+-            "from twisted.python.deprecate import deprecated\n"
+-            "from incremental import Version\n"
+-            "@deprecated(Version('Twisted', 15, 0, 0), "
+-            "'Baz')\n"
+-            "def foo():\n"
+-            "    '{}'\n"
+-            "from twisted.python import deprecate\n"
+-            "import incremental\n"
+-            "@deprecate.deprecated(incremental.Version('Twisted', 16, 0, 0))\n"
+-            "def _bar():\n"
+-            "    '{}'\n"
+-            "@deprecated(Version('Twisted', 14, 2, 3), replacement='stuff')\n"
+-            "class Baz:\n"
+-            "    pass"
+-            "".format(docstring, privateDocstring).encode()
+-        )
+-
+-        outputPath = FilePath(self.mktemp())
+-
+-        builder = APIBuilder()
+-        builder.build(projectName, projectURL, sourceURL, inputPath, outputPath)
+-
+-        quuxPath = outputPath.child("quux.html")
+-        self.assertTrue(
+-            quuxPath.exists(),
+-            f"Package documentation file {quuxPath.path!r} did not exist.",
+-        )
+-
+-        self.assertIn(
+-            docstring,
+-            quuxPath.getContent().decode(),
+-            "Docstring not in package documentation file.",
+-        )
+-        self.assertIn(
+-            "foo was deprecated in Twisted 15.0.0; please use Baz instead.",
+-            quuxPath.getContent().decode(),
+-        )
+-        self.assertIn(
+-            "_bar was deprecated in Twisted 16.0.0.", quuxPath.getContent().decode()
+-        )
+-        self.assertIn(privateDocstring, quuxPath.getContent().decode())
+-
+-        self.assertIn(
+-            "Baz was deprecated in Twisted 14.2.3; please use stuff instead.",
+-            quuxPath.sibling("quux.Baz.html").getContent().decode(),
+-        )
+-
+-        self.assertEqual(stdout.getvalue(), b"")
+-
+-    def test_apiBuilderScriptMainRequiresTwoArguments(self):
+-        """
+-        SystemExit is raised when the incorrect number of command line
+-        arguments are passed to the API building script.
+-        """
+-        script = BuildAPIDocsScript()
+-        self.assertRaises(SystemExit, script.main, [])
+-        self.assertRaises(SystemExit, script.main, ["foo"])
+-        self.assertRaises(SystemExit, script.main, ["foo", "bar", "baz"])
+-
+-    def test_apiBuilderScriptMain(self):
+-        """
+-        The API building script invokes the same code that
+-        L{test_buildWithPolicy} tests.
+-        """
+-        script = BuildAPIDocsScript()
+-        calls = []
+-        script.buildAPIDocs = lambda a, b: calls.append((a, b))
+-        script.main(["hello", "there"])
+-        self.assertEqual(calls, [(FilePath("hello"), FilePath("there"))])
+-
+-
+ class FilePathDeltaTests(TestCase):
+     """
+     Tests for L{filePathDelta}.
+diff --git a/tox.ini b/tox.ini
+index b63c77d..bf35a02 100644
+--- a/tox.ini
++++ b/tox.ini
+@@ -153,10 +153,16 @@ commands =
+ # The resulting files can be viewed with web browsers from the local `apidocs`
+ # path.
+ [testenv:apidocs]
+-description = Build the API documentation.
++description = Build the API documentation and fail on any errors or warnings.
+ 
+ extras = dev_release
+-commands = {toxinidir}/bin/admin/build-apidocs {toxinidir}/src/ apidocs
++commands =
++    # FIXME:https://github.com/twisted/twisted/issues/11590
++    # After all the pydoctor errors are fixed, the tox should be updated
++    # to fail on any pydoctor errors.
++    # Remote the dash from the start of the command.
++    - pydoctor src/twisted
++
+ deps =
+     ; bugfix for https://github.com/sphinx-doc/sphinx/pull/9513/ on py310rc1
+     sphinx @ https://github.com/sphinx-doc/sphinx/archive/514fca7a407f03fae4c788178555a74256936655.tar.gz

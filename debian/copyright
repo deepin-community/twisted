@@ -1,9 +1,11 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: Twisted
+Files-Excluded:
+ .gitattributes
 
 Files: *
 Copyright:
- 2001-2018 Twisted Matrix Laboratories
+ 2001-2021 Twisted Matrix Laboratories
            Allen Short
            Amber Hawkie Brown
            Andrew Bennetts

@@ -1,0 +1,2 @@
+# This isn't a possible real privacy breach, it uses 'example.org' to show the usage.
+twisted-doc: privacy-breach-generic usr/share/doc/twisted-doc/html/_downloads/* *

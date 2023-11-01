@@ -1,0 +1,120 @@
+From: Stefano Rivera <stefanor@debian.org>
+Date: Fri, 6 May 2022 20:54:58 -0400
+Subject: Drop dependency on typing_extensions
+
+All the bits we need are available in Python 3.8.0. Upstream uses
+typing_extensions to support older Pythons.
+---
+ setup.cfg                                  | 3 +--
+ src/twisted/internet/address.py            | 3 +--
+ src/twisted/internet/defer.py              | 2 +-
+ src/twisted/internet/tcp.py                | 6 +++---
+ src/twisted/protocols/haproxy/_v2parser.py | 3 +--
+ 5 files changed, 7 insertions(+), 10 deletions(-)
+
+diff --git a/setup.cfg b/setup.cfg
+index 5d5fb85..7d51f4f 100644
+--- a/setup.cfg
++++ b/setup.cfg
+@@ -26,7 +26,7 @@ long_description_content_type = text/x-rst
+ 
+ [options]
+ # When updating this value, make sure our CI matrix includes a matching minimum version.
+-python_requires = >=3.6.7
++python_requires = >=3.8.0
+ install_requires =
+     zope.interface >= 4.4.2
+     constantly >= 15.1
+@@ -34,7 +34,6 @@ install_requires =
+     Automat >= 0.8.0
+     hyperlink >= 17.1.1
+     attrs >= 19.2.0
+-    typing_extensions >= 3.6.5
+     twisted-iocpsupport >= 1.0.2, <2; platform_system == "Windows"
+ include_package_data = True
+ zip_safe = False
+diff --git a/src/twisted/internet/address.py b/src/twisted/internet/address.py
+index f99048c..9f5f8d5 100644
+--- a/src/twisted/internet/address.py
++++ b/src/twisted/internet/address.py
+@@ -7,13 +7,12 @@ Address objects for network connections.
+ 
+ 
+ import os
+-from typing import Optional, Union
++from typing import Optional, Literal, Union
+ from warnings import warn
+ 
+ from zope.interface import implementer
+ 
+ import attr
+-from typing_extensions import Literal
+ 
+ from twisted.internet.interfaces import IAddress
+ from twisted.python.filepath import _asFilesystemBytes, _coerceToFilesystemEncoding
+diff --git a/src/twisted/internet/defer.py b/src/twisted/internet/defer.py
+index 802dad5..9ddc5cd 100644
+--- a/src/twisted/internet/defer.py
++++ b/src/twisted/internet/defer.py
+@@ -26,6 +26,7 @@ from typing import (
+     Generic,
+     Iterable,
+     List,
++    Literal,
+     Mapping,
+     NoReturn,
+     Optional,
+@@ -39,7 +40,6 @@ from typing import (
+ 
+ import attr
+ from incremental import Version
+-from typing_extensions import Literal
+ 
+ from twisted.internet.interfaces import IDelayedCall, IReactorTime
+ from twisted.logger import Logger
+diff --git a/src/twisted/internet/tcp.py b/src/twisted/internet/tcp.py
+index 80a27af..37b2363 100644
+--- a/src/twisted/internet/tcp.py
++++ b/src/twisted/internet/tcp.py
+@@ -14,12 +14,12 @@ import os
+ import socket
+ import struct
+ import sys
+-from typing import Callable, ClassVar, List, Optional
++from typing import Callable, ClassVar, List, Optional, Protocol
++import typing
+ 
+ from zope.interface import Interface, implementer
+ 
+ import attr
+-import typing_extensions
+ 
+ from twisted.internet.interfaces import (
+     IHalfCloseableProtocol,
+@@ -936,7 +936,7 @@ class _IFileDescriptorReservation(Interface):
+         """
+ 
+ 
+-class _HasClose(typing_extensions.Protocol):
++class _HasClose(typing.Protocol):
+     def close(self) -> object:
+         ...
+ 
+diff --git a/src/twisted/protocols/haproxy/_v2parser.py b/src/twisted/protocols/haproxy/_v2parser.py
+index 5b8e587..c6417b4 100644
+--- a/src/twisted/protocols/haproxy/_v2parser.py
++++ b/src/twisted/protocols/haproxy/_v2parser.py
+@@ -9,12 +9,11 @@ IProxyParser implementation for version two of the PROXY protocol.
+ 
+ import binascii
+ import struct
+-from typing import Callable, Tuple, Type, Union
++from typing import Callable, Literal, Tuple, Type, Union
+ 
+ from zope.interface import implementer
+ 
+ from constantly import ValueConstant, Values  # type: ignore[import]
+-from typing_extensions import Literal
+ 
+ from twisted.internet import address
+ from twisted.python import compat

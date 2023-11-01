@@ -1,2 +1,5 @@
+Bug-Database: https://twistedmatrix.com/trac/report
+Bug-Submit: https://twistedmatrix.com/trac/newticket
+FAQ: https://twistedmatrix.com/trac/wiki/FrequentlyAskedQuestions
 Repository: https://github.com/twisted/twisted.git
 Repository-Browse: https://github.com/twisted/twisted

@@ -1,0 +1,37 @@
+From: Tom Most <twm@freecog.net>
+Date: Sat, 22 Oct 2022 18:45:06 -0700
+Subject: Address DummyRequest MyPy issue
+
+Filed https://github.com/twisted/twisted/issues/11719 for this.
+---
+ src/twisted/web/test/test_pages.py | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/src/twisted/web/test/test_pages.py b/src/twisted/web/test/test_pages.py
+index d83e0eb..1f66c16 100644
+--- a/src/twisted/web/test/test_pages.py
++++ b/src/twisted/web/test/test_pages.py
+@@ -5,8 +5,11 @@
+ Test L{twisted.web.pages}
+ """
+ 
++from typing import cast
++
+ from twisted.trial.unittest import SynchronousTestCase
+ from twisted.web.http_headers import Headers
++from twisted.web.iweb import IRequest
+ from twisted.web.pages import ErrorPage, forbidden, notFound
+ from twisted.web.test.requesthelper import DummyRequest
+ 
+@@ -20,7 +23,10 @@ def _render(resource: ErrorPage) -> DummyRequest:
+     @returns: The request that the resource handled,
+     """
+     request = DummyRequest([b""])
+-    resource.render(request)
++    # The cast is necessary because DummyRequest isn't annotated
++    # as an IRequest, and this can't be trivially done. See
++    # https://github.com/twisted/twisted/issues/11719
++    resource.render(cast(IRequest, request))
+     return request
+ 
+ 

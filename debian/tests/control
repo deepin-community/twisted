@@ -1,5 +1,6 @@
 Tests: unit-tests-3
 Restrictions: needs-root
-Depends: @,
-	 python3-setuptools,
-	 python3-hamcrest,
+Depends:
+ python3-hamcrest,
+ python3-setuptools,
+ @,

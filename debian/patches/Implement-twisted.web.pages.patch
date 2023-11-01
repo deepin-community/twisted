@@ -1,0 +1,335 @@
+From: Tom Most <twm@freecog.net>
+Date: Thu, 20 Oct 2022 23:38:19 -0700
+Subject: Implement twisted.web.pages
+
+---
+ src/twisted/web/_template_util.py           |   6 +-
+ src/twisted/web/newsfragments/11716.feature |   2 +-
+ src/twisted/web/pages.py                    | 108 ++++++++++++++++++++++++++++
+ src/twisted/web/resource.py                 |  10 +--
+ src/twisted/web/test/test_pages.py          | 106 +++++++++++++++++++++++++++
+ src/twisted/web/test/test_resource.py       |   4 +-
+ 6 files changed, 225 insertions(+), 11 deletions(-)
+ create mode 100644 src/twisted/web/pages.py
+ create mode 100644 src/twisted/web/test/test_pages.py
+
+diff --git a/src/twisted/web/_template_util.py b/src/twisted/web/_template_util.py
+index bd081bd..38ebbed 100644
+--- a/src/twisted/web/_template_util.py
++++ b/src/twisted/web/_template_util.py
+@@ -1034,9 +1034,9 @@ class _TagFactory:
+     """
+     A factory for L{Tag} objects; the implementation of the L{tags} object.
+ 
+-    This allows for the syntactic convenience of C{from twisted.web.html import
+-    tags; tags.a(href="linked-page.html")}, where 'a' can be basically any HTML
+-    tag.
++    This allows for the syntactic convenience of C{from twisted.web.template
++    import tags; tags.a(href="linked-page.html")}, where 'a' can be basically
++    any HTML tag.
+ 
+     The class is not exposed publicly because you only ever need one of these,
+     and we already made it for you.
+diff --git a/src/twisted/web/newsfragments/11716.feature b/src/twisted/web/newsfragments/11716.feature
+index 5693458..e8ba00b 100644
+--- a/src/twisted/web/newsfragments/11716.feature
++++ b/src/twisted/web/newsfragments/11716.feature
+@@ -1 +1 @@
+-The twisted.web.pages.ErrorPage, NotFoundPage, and ForbiddenPage IResource implementations provide HTML error pages rendered safely using twisted.web.template.
++The twisted.web.pages.ErrorPage, notFound, and forbidden IResource implementations provide HTML error pages safely rendered using twisted.web.template.
+diff --git a/src/twisted/web/pages.py b/src/twisted/web/pages.py
+new file mode 100644
+index 0000000..8f37b3e
+--- /dev/null
++++ b/src/twisted/web/pages.py
+@@ -0,0 +1,108 @@
++# -*- test-case-name: twisted.web.test.test_pages -*-
++# Copyright (c) Twisted Matrix Laboratories.
++# See LICENSE for details.
++
++"""
++Utility implementations of L{IResource}.
++"""
++
++__all__ = (
++    "ErrorPage",
++    "notFound",
++    "forbidden",
++)
++
++
++from twisted.web import http
++from twisted.web.iweb import IRequest
++from twisted.web.resource import Resource
++from twisted.web.template import renderElement, tags
++
++
++class ErrorPage(Resource):
++    """
++    L{ErrorPage} is a resource that responds to all requests with a particular
++    (parameterized) HTTP status code and a body consisting of HTML containing
++    some descriptive text. This is useful for rendering simple error pages.
++
++    @ivar _code: An integer HTTP status code which will be used for the
++        response.
++
++    @ivar _brief: A short string which will be included in the response body as
++        the page title.
++
++    @ivar _detail: A longer string which will be included in the response body.
++    """
++
++    def __init__(self, code: int, brief: str, detail: str) -> None:
++        """
++        @param code: An integer HTTP status code which will be used for the
++            response.
++
++        @param brief: A short string which will be included in the response
++            body as the page title.
++
++        @param detail: A longer string which will be included in the
++            response body.
++        """
++        super().__init__()
++        self._code: int = code
++        self._brief: str = brief
++        self._detail: str = detail
++
++    def render(self, request: IRequest) -> None:
++        """
++        Respond to all requests with the given HTTP status code and an HTML
++        document containing the explanatory strings.
++        """
++        request.setResponseCode(self._code)
++        request.setHeader(b"content-type", b"text/html; charset=utf-8")
++        renderElement(
++            request,
++            tags.html(
++                tags.head(tags.title(f"{self._code} - {self._brief}")),
++                tags.body(tags.h1(self._brief), tags.p(self._detail)),
++            ),
++        )
++
++    def getChild(self, path: bytes, request: IRequest) -> Resource:
++        """
++        Handle all requests for which L{ErrorPage} lacks a child by returning
++        this error page.
++
++        @param path: A path segment.
++
++        @param request: HTTP request
++        """
++        return self
++
++
++def notFound(
++    brief: str = "No Such Resource",
++    message: str = "Sorry. No luck finding that resource.",
++) -> ErrorPage:
++    """
++    Generate an L{ErrorPage} with a 404 Not Found status code.
++
++    @param brief: A short string displayed as the page title.
++
++    @param brief: A longer string displayed in the page body.
++
++    @returns: An L{ErrorPage}
++    """
++    return ErrorPage(http.NOT_FOUND, brief, message)
++
++
++def forbidden(
++    brief: str = "Forbidden Resource", message: str = "Sorry, resource is forbidden."
++) -> ErrorPage:
++    """
++    Generate an L{ErrorPage} with a 403 Forbidden status code.
++
++    @param brief: A short string displayed as the page title.
++
++    @param brief: A longer string displayed in the page body.
++
++    @returns: An L{ErrorPage}
++    """
++    return ErrorPage(http.FORBIDDEN, brief, message)
+diff --git a/src/twisted/web/resource.py b/src/twisted/web/resource.py
+index 93c7807..09fc74a 100644
+--- a/src/twisted/web/resource.py
++++ b/src/twisted/web/resource.py
+@@ -183,7 +183,7 @@ class Resource:
+         Parameters and return value have the same meaning and requirements as
+         those defined by L{IResource.getChildWithDefault}.
+         """
+-        return NoResource("No such child resource.")
++        return _UnsafeNoResource()
+ 
+     def getChildWithDefault(self, path, request):
+         """
+@@ -359,7 +359,7 @@ class _UnsafeNoResource(_UnsafeErrorPage):
+     returns the HTTP response code I{NOT FOUND}.
+ 
+     Deprecated in Twisted NEXT because it permits HTML injection; use
+-    L{twisted.pages.NotFoundPage} instead.
++    L{twisted.pages.notFound} instead.
+     """
+ 
+     def __init__(self, message="Sorry. No luck finding that resource."):
+@@ -373,7 +373,7 @@ class _UnsafeForbiddenResource(_UnsafeErrorPage):
+     returns the I{FORBIDDEN} HTTP response code.
+ 
+     Deprecated in Twisted NEXT because it permits HTML injection; use
+-    L{twisted.pages.ForbiddenPage} instead.
++    L{twisted.pages.forbidden} instead.
+     """
+ 
+     def __init__(self, message="Sorry, resource is forbidden."):
+@@ -394,14 +394,14 @@ deprecatedModuleAttribute(
+ 
+ deprecatedModuleAttribute(
+     Version("Twisted", "NEXT", 0, 0),
+-    "Use twisted.pages.NotFoundPage instead, which properly escapes HTML.",
++    "Use twisted.pages.notFound instead, which properly escapes HTML.",
+     __name__,
+     "NoResource",
+ )
+ 
+ deprecatedModuleAttribute(
+     Version("Twisted", "NEXT", 0, 0),
+-    "Use twisted.pages.ForbiddenPage instead, which properly escapes HTML.",
++    "Use twisted.pages.forbidden instead, which properly escapes HTML.",
+     __name__,
+     "ForbiddenResource",
+ )
+diff --git a/src/twisted/web/test/test_pages.py b/src/twisted/web/test/test_pages.py
+new file mode 100644
+index 0000000..d83e0eb
+--- /dev/null
++++ b/src/twisted/web/test/test_pages.py
+@@ -0,0 +1,106 @@
++# Copyright (c) Twisted Matrix Laboratories.
++# See LICENSE for details.
++
++"""
++Test L{twisted.web.pages}
++"""
++
++from twisted.trial.unittest import SynchronousTestCase
++from twisted.web.http_headers import Headers
++from twisted.web.pages import ErrorPage, forbidden, notFound
++from twisted.web.test.requesthelper import DummyRequest
++
++
++def _render(resource: ErrorPage) -> DummyRequest:
++    """
++    Render a response using the given resource.
++
++    @param resource: The resource to use to handle the request.
++
++    @returns: The request that the resource handled,
++    """
++    request = DummyRequest([b""])
++    resource.render(request)
++    return request
++
++
++class ErrorPageTests(SynchronousTestCase):
++    """
++    Test L{twisted.web.pages.ErrorPage} and its convencience helpers
++    L{notFound} and L{forbidden}.
++    """
++
++    maxDiff = None
++
++    def assertResponse(self, request: DummyRequest, code: int, body: bytes) -> None:
++        self.assertEqual(request.responseCode, code)
++        self.assertEqual(
++            request.responseHeaders,
++            Headers({b"content-type": [b"text/html; charset=utf-8"]}),
++        )
++        self.assertEqual(
++            # Decode to str because unittest somehow still doesn't diff bytes
++            # without truncating them in 2022.
++            b"".join(request.written).decode("latin-1"),
++            body.decode("latin-1"),
++        )
++
++    def test_escapesHTML(self):
++        """
++        The I{brief} and I{detail} parameters are HTML-escaped on render.
++        """
++        self.assertResponse(
++            _render(ErrorPage(400, "A & B", "<script>alert('oops!')")),
++            400,
++            (
++                b"<!DOCTYPE html>\n"
++                b"<html><head><title>400 - A &amp; B</title></head>"
++                b"<body><h1>A &amp; B</h1><p>&lt;script&gt;alert('oops!')"
++                b"</p></body></html>"
++            ),
++        )
++
++    def test_getChild(self):
++        """
++        The C{getChild} method of L{ErrorPage} returns the L{ErrorPage} it is
++        called on.
++        """
++        page = ErrorPage(404, "foo", "bar")
++        self.assertIs(
++            page.getChild(b"name", DummyRequest([b""])),
++            page,
++        )
++
++    def test_notFoundDefaults(self):
++        """
++        The default arguments to L{twisted.web.pages.notFound} produce
++        a reasonable error page.
++        """
++        self.assertResponse(
++            _render(notFound()),
++            404,
++            (
++                b"<!DOCTYPE html>\n"
++                b"<html><head><title>404 - No Such Resource</title></head>"
++                b"<body><h1>No Such Resource</h1>"
++                b"<p>Sorry. No luck finding that resource.</p>"
++                b"</body></html>"
++            ),
++        )
++
++    def test_forbiddenDefaults(self):
++        """
++        The default arguments to L{twisted.web.pages.forbidden} produce
++        a reasonable error page.
++        """
++        self.assertResponse(
++            _render(forbidden()),
++            403,
++            (
++                b"<!DOCTYPE html>\n"
++                b"<html><head><title>403 - Forbidden Resource</title></head>"
++                b"<body><h1>Forbidden Resource</h1>"
++                b"<p>Sorry, resource is forbidden.</p>"
++                b"</body></html>"
++            ),
++        )
+diff --git a/src/twisted/web/test/test_resource.py b/src/twisted/web/test/test_resource.py
+index 3e83d0e..c039704 100644
+--- a/src/twisted/web/test/test_resource.py
++++ b/src/twisted/web/test/test_resource.py
+@@ -56,7 +56,7 @@ class ErrorPageTests(TestCase):
+ 
+         [warning] = self.flushWarnings()
+         self.assertEqual(warning["category"], DeprecationWarning)
+-        self.assertIn("twisted.pages.NotFoundPage", warning["message"])
++        self.assertIn("twisted.pages.notFound", warning["message"])
+ 
+     def test_deprecatedForbiddenResource(self):
+         """
+@@ -70,7 +70,7 @@ class ErrorPageTests(TestCase):
+ 
+         [warning] = self.flushWarnings()
+         self.assertEqual(warning["category"], DeprecationWarning)
+-        self.assertIn("twisted.pages.ForbiddenPage", warning["message"])
++        self.assertIn("twisted.pages.forbidden", warning["message"])
+ 
+     def test_getChild(self):
+         """

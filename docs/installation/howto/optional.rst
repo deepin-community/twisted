@@ -36,6 +36,8 @@ The following optional dependencies are supported:
   * `pyasn1`_
   * `cryptography`_
 
+* **conch_nacl** - **conch** options and `PyNaCl`_ to support Ed25519 keys on systems with OpenSSL < 1.1.1b.
+
 * **soap** - the `SOAPpy`_ package to work with SOAP.
 
 * **serial** - the `pyserial`_ package to work with serial data.
@@ -51,6 +53,9 @@ The following optional dependencies are supported:
   * `h2`_
   * `priority`_
 
+* **contextvars** - the `contextvars`_ backport package to provide contextvars support for Python versions before 3.7.
+
+
 .. _pip: https://pip.pypa.io/en/latest/quickstart.html
 .. _TwistedChecker: https://pypi.python.org/pypi/TwistedChecker
 .. _pyflakes: https://pypi.python.org/pypi/pyflakes
@@ -62,6 +67,7 @@ The following optional dependencies are supported:
 .. _service_identity: https://pypi.python.org/pypi/service_identity
 .. _pyasn1: https://pypi.python.org/pypi/pyasn1
 .. _cryptography: https://pypi.python.org/pypi/cryptography
+.. _PyNaCl: https://pypi.python.org/pypi/PyNaCl
 .. _SOAPpy: https://pypi.python.org/pypi/SOAPpy
 .. _pyserial: https://pypi.python.org/pypi/pyserial
 .. _pyobjc: https://pypi.python.org/pypi/pyobjc
@@ -71,3 +77,4 @@ The following optional dependencies are supported:
 .. _idna: https://pypi.python.org/pypi/idna
 .. _h2: https://pypi.python.org/pypi/h2
 .. _priority: https://pypi.python.org/pypi/priority
+.. _contextvars: https://pypi.org/project/contextvars/

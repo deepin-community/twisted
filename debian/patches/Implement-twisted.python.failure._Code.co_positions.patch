@@ -1,0 +1,32 @@
+From: Colin Watson <cjwatson@canonical.com>
+Date: Sat, 23 Apr 2022 22:29:07 +0100
+Subject: Implement twisted.python.failure._Code.co_positions
+
+This is needed for compatibility with Python 3.11.
+---
+ src/twisted/python/failure.py | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/src/twisted/python/failure.py b/src/twisted/python/failure.py
+index 6471e7b..c5a359e 100644
+--- a/src/twisted/python/failure.py
++++ b/src/twisted/python/failure.py
+@@ -130,7 +130,7 @@ def _Traceback(stackFrames, tbFrames):
+ 
+ 
+ # The set of attributes for _TracebackFrame, _Frame and _Code were taken from
+-# https://docs.python.org/3.10/library/inspect.html Other Pythons may have a
++# https://docs.python.org/3.11/library/inspect.html Other Pythons may have a
+ # few more attributes that should be added if needed.
+ class _TracebackFrame:
+     """
+@@ -202,6 +202,9 @@ class _Code:
+         self.co_nlocals = 0
+         self.co_stacksize = 0
+ 
++    def co_positions(self):
++        return ((None, None, None, None),)
++
+ 
+ _inlineCallbacksExtraneous = []
+ 
