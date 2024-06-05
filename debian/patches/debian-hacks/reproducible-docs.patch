@@ -1,0 +1,38 @@
+From: Stefano Rivera <stefanor@debian.org>
+Date: Sun, 24 Dec 2023 19:24:32 -0400
+Subject: Don't embed date in documentation
+
+Build reproducibly, we don't need the date.
+
+Bug-Debian: https://bugs.debian.org/1034499
+---
+ docs/conf.py | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
+
+diff --git a/docs/conf.py b/docs/conf.py
+index eb9aa7d..d3a47fe 100644
+--- a/docs/conf.py
++++ b/docs/conf.py
+@@ -15,7 +15,6 @@ import os
+ import pathlib
+ import subprocess
+ import sys
+-from datetime import date
+ from pprint import pprint
+ 
+ import sphinx_rtd_theme
+@@ -55,13 +54,10 @@ source_suffix = ".rst"
+ # The master toctree document.
+ master_doc = "index"
+ 
+-_today = date.today()
+ # General information about the project.
+ project = "Twisted"
+-copyright = "{}, Twisted Matrix Labs. Ver {}. Built on {}".format(
+-    _today.year,
++copyright = "Twisted Matrix Labs. Ver {}.".format(
+     twisted_version_object.public(),
+-    _today.isoformat(),
+ )
+ 
+ # The version info for the project you're documenting, acts as replacement for

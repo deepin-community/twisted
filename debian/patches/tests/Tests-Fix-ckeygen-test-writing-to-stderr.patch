@@ -11,19 +11,19 @@ Forwarded: https://twistedmatrix.com/trac/ticket/8924
  1 file changed, 5 insertions(+), 1 deletion(-)
 
 diff --git a/src/twisted/conch/test/test_ckeygen.py b/src/twisted/conch/test/test_ckeygen.py
-index 8b0ed86..584f59e 100644
+index 29de796..962ccb6 100644
 --- a/src/twisted/conch/test/test_ckeygen.py
 +++ b/src/twisted/conch/test/test_ckeygen.py
-@@ -8,6 +8,7 @@ Tests for L{twisted.conch.scripts.ckeygen}.
- import getpass
+@@ -10,6 +10,7 @@ import getpass
+ import os
  import subprocess
  import sys
 +import os
  from io import StringIO
+ from typing import Callable
  
- from twisted.conch.test.keydata import (
-@@ -105,7 +106,10 @@ class KeyGenTests(TestCase):
-     def test_runBadKeytype(self):
+@@ -116,7 +117,10 @@ class KeyGenTests(TestCase):
+     def test_runBadKeytype(self) -> None:
          filename = self.mktemp()
          with self.assertRaises(subprocess.CalledProcessError):
 -            subprocess.check_call(["ckeygen", "-t", "foo", "-f", filename])
@@ -32,5 +32,5 @@ index 8b0ed86..584f59e 100644
 +                    ['ckeygen', '-t', 'foo', '-f', filename],
 +                    stderr=devnull)
  
-     def test_enumrepresentation(self):
+     def test_enumrepresentation(self) -> None:
          """

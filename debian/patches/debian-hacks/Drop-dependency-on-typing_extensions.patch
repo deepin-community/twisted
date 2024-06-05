@@ -2,96 +2,210 @@ From: Stefano Rivera <stefanor@debian.org>
 Date: Fri, 6 May 2022 20:54:58 -0400
 Subject: Drop dependency on typing_extensions
 
-All the bits we need are available in Python 3.8.0. Upstream uses
+All the bits we need are available in Python 3.11.0. Upstream uses
 typing_extensions to support older Pythons.
 ---
- setup.cfg                                  | 3 +--
- src/twisted/internet/address.py            | 3 +--
- src/twisted/internet/defer.py              | 2 +-
- src/twisted/internet/tcp.py                | 6 +++---
- src/twisted/protocols/haproxy/_v2parser.py | 3 +--
- 5 files changed, 7 insertions(+), 10 deletions(-)
+ pyproject.toml                                      | 3 +--
+ src/twisted/_threads/_pool.py                       | 2 +-
+ src/twisted/application/runner/test/test_pidfile.py | 2 +-
+ src/twisted/conch/checkers.py                       | 2 +-
+ src/twisted/conch/ssh/keys.py                       | 2 +-
+ src/twisted/conch/ssh/transport.py                  | 2 +-
+ src/twisted/conch/test/test_ckeygen.py              | 2 +-
+ src/twisted/internet/_signals.py                    | 2 +-
+ src/twisted/internet/address.py                     | 2 +-
+ src/twisted/internet/defer.py                       | 2 +-
+ src/twisted/internet/tcp.py                         | 4 ++--
+ src/twisted/internet/test/test_base.py              | 2 +-
+ src/twisted/internet/test/test_defer_await.py       | 2 +-
+ src/twisted/internet/test/test_reactormixins.py     | 2 +-
+ src/twisted/internet/test/test_testing.py           | 2 +-
+ src/twisted/internet/testing.py                     | 2 +-
+ src/twisted/internet/threads.py                     | 2 +-
+ src/twisted/names/test/test_hosts.py                | 2 +-
+ src/twisted/positioning/test/test_nmea.py           | 2 +-
+ src/twisted/protocols/haproxy/_v2parser.py          | 2 +-
+ src/twisted/python/deprecate.py                     | 2 +-
+ src/twisted/python/filepath.py                      | 2 +-
+ src/twisted/python/test/strategies.py               | 2 +-
+ src/twisted/python/test/test_url.py                 | 2 +-
+ src/twisted/python/threadpool.py                    | 2 +-
+ src/twisted/python/zippath.py                       | 2 +-
+ src/twisted/test/test_defer.py                      | 2 +-
+ src/twisted/test/test_formmethod.py                 | 2 +-
+ src/twisted/test/test_lockfile.py                   | 2 +-
+ src/twisted/test/test_log.py                        | 2 +-
+ src/twisted/test/test_modules.py                    | 2 +-
+ src/twisted/test/test_monkey.py                     | 2 +-
+ src/twisted/test/test_paths.py                      | 2 +-
+ src/twisted/test/test_persisted.py                  | 2 +-
+ src/twisted/test/test_randbytes.py                  | 2 +-
+ src/twisted/test/test_rebuild.py                    | 2 +-
+ src/twisted/trial/_asynctest.py                     | 2 +-
+ src/twisted/trial/_dist/test/matchers.py            | 2 +-
+ src/twisted/trial/_dist/worker.py                   | 2 +-
+ src/twisted/trial/_dist/workerreporter.py           | 2 +-
+ src/twisted/trial/_synctest.py                      | 2 +-
+ src/twisted/trial/reporter.py                       | 2 +-
+ src/twisted/trial/runner.py                         | 2 +-
+ src/twisted/trial/util.py                           | 2 +-
+ src/twisted/web/static.py                           | 2 +-
+ src/twisted/web/test/test_xml.py                    | 2 +-
+ tox.ini                                             | 1 -
+ 47 files changed, 47 insertions(+), 49 deletions(-)
 
-diff --git a/setup.cfg b/setup.cfg
-index 5d5fb85..7d51f4f 100644
---- a/setup.cfg
-+++ b/setup.cfg
-@@ -26,7 +26,7 @@ long_description_content_type = text/x-rst
- 
- [options]
+diff --git a/pyproject.toml b/pyproject.toml
+index e7865c6..1b6fff7 100644
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -17,7 +17,7 @@ dynamic = [
+ description = "An asynchronous networking framework written in Python"
+ license = { text = "MIT License" }
  # When updating this value, make sure our CI matrix includes a matching minimum version.
--python_requires = >=3.6.7
-+python_requires = >=3.8.0
- install_requires =
-     zope.interface >= 4.4.2
-     constantly >= 15.1
-@@ -34,7 +34,6 @@ install_requires =
-     Automat >= 0.8.0
-     hyperlink >= 17.1.1
-     attrs >= 19.2.0
--    typing_extensions >= 3.6.5
-     twisted-iocpsupport >= 1.0.2, <2; platform_system == "Windows"
- include_package_data = True
- zip_safe = False
+-requires-python = ">=3.8.0"
++requires-python = ">=3.11.0"
+ authors = [
+     { name = "Twisted Matrix Laboratories", email = "twisted-python@twistedmatrix.com" },
+ ]
+@@ -37,7 +37,6 @@ dependencies = [
+     "Automat >= 0.8.0",
+     "hyperlink >= 17.1.1",
+     "attrs >= 21.3.0",
+-    "typing_extensions >= 4.2.0",
+     "twisted-iocpsupport >= 1.0.2, <2; platform_system == 'Windows'",
+ ]
+ 
+diff --git a/src/twisted/_threads/_pool.py b/src/twisted/_threads/_pool.py
+index 99c055d..d0e1835 100644
+--- a/src/twisted/_threads/_pool.py
++++ b/src/twisted/_threads/_pool.py
+@@ -12,7 +12,7 @@ from queue import Queue
+ from threading import Lock, Thread, local as LocalStorage
+ from typing import Callable, Optional
+ 
+-from typing_extensions import Protocol
++from typing import Protocol
+ 
+ from twisted.python.log import err
+ from ._ithreads import IWorker
+diff --git a/src/twisted/application/runner/test/test_pidfile.py b/src/twisted/application/runner/test/test_pidfile.py
+index 30667a3..e7d0c69 100644
+--- a/src/twisted/application/runner/test/test_pidfile.py
++++ b/src/twisted/application/runner/test/test_pidfile.py
+@@ -12,7 +12,7 @@ from typing import Any, Callable, Optional
+ 
+ from zope.interface.verify import verifyObject
+ 
+-from typing_extensions import NoReturn
++from typing import NoReturn
+ 
+ import twisted.trial.unittest
+ from twisted.python.filepath import FilePath
+diff --git a/src/twisted/conch/checkers.py b/src/twisted/conch/checkers.py
+index 3ade2d8..6f4e1de 100644
+--- a/src/twisted/conch/checkers.py
++++ b/src/twisted/conch/checkers.py
+@@ -16,7 +16,7 @@ from typing import IO, Any, Callable, Iterable, Iterator, Mapping, Optional, Tup
+ from zope.interface import Interface, implementer, providedBy
+ 
+ from incremental import Version
+-from typing_extensions import Literal, Protocol
++from typing import Literal, Protocol
+ 
+ from twisted.conch import error
+ from twisted.conch.ssh import keys
+diff --git a/src/twisted/conch/ssh/keys.py b/src/twisted/conch/ssh/keys.py
+index e959f02..ff54137 100644
+--- a/src/twisted/conch/ssh/keys.py
++++ b/src/twisted/conch/ssh/keys.py
+@@ -26,7 +26,7 @@ from cryptography.hazmat.primitives.serialization import (
+     load_pem_private_key,
+     load_ssh_public_key,
+ )
+-from typing_extensions import Literal
++from typing import Literal
+ 
+ from twisted.conch.ssh import common, sexpy
+ from twisted.conch.ssh.common import int_to_bytes
+diff --git a/src/twisted/conch/ssh/transport.py b/src/twisted/conch/ssh/transport.py
+index d46f093..4a6df41 100644
+--- a/src/twisted/conch/ssh/transport.py
++++ b/src/twisted/conch/ssh/transport.py
+@@ -24,7 +24,7 @@ from cryptography.hazmat.backends import default_backend
+ from cryptography.hazmat.primitives import serialization
+ from cryptography.hazmat.primitives.asymmetric import dh, ec, x25519
+ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+-from typing_extensions import Literal
++from typing import Literal
+ 
+ from twisted import __version__ as twisted_version
+ from twisted.conch.ssh import _kex, address, keys
+diff --git a/src/twisted/conch/test/test_ckeygen.py b/src/twisted/conch/test/test_ckeygen.py
+index 51f0a46..c1cc5dd 100644
+--- a/src/twisted/conch/test/test_ckeygen.py
++++ b/src/twisted/conch/test/test_ckeygen.py
+@@ -14,7 +14,7 @@ import os
+ from io import StringIO
+ from typing import Callable
+ 
+-from typing_extensions import NoReturn
++from typing import NoReturn
+ 
+ from twisted.conch.test.keydata import (
+     privateECDSA_openssh,
+diff --git a/src/twisted/internet/_signals.py b/src/twisted/internet/_signals.py
+index 18793bf..c49b980 100644
+--- a/src/twisted/internet/_signals.py
++++ b/src/twisted/internet/_signals.py
+@@ -44,7 +44,7 @@ from typing import Callable, Optional, Sequence
+ from zope.interface import Attribute, Interface, implementer
+ 
+ from attrs import define, frozen
+-from typing_extensions import Protocol, TypeAlias
++from typing import Protocol, TypeAlias
+ 
+ from twisted.internet.interfaces import IReadDescriptor
+ from twisted.python import failure, log, util
 diff --git a/src/twisted/internet/address.py b/src/twisted/internet/address.py
-index f99048c..9f5f8d5 100644
+index 10fa852..3518273 100644
 --- a/src/twisted/internet/address.py
 +++ b/src/twisted/internet/address.py
-@@ -7,13 +7,12 @@ Address objects for network connections.
- 
- 
- import os
--from typing import Optional, Union
-+from typing import Optional, Literal, Union
- from warnings import warn
- 
+@@ -13,7 +13,7 @@ from warnings import warn
  from zope.interface import implementer
  
  import attr
 -from typing_extensions import Literal
++from typing import Literal
  
  from twisted.internet.interfaces import IAddress
  from twisted.python.filepath import _asFilesystemBytes, _coerceToFilesystemEncoding
 diff --git a/src/twisted/internet/defer.py b/src/twisted/internet/defer.py
-index 802dad5..9ddc5cd 100644
+index caafb52..0e81e25 100644
 --- a/src/twisted/internet/defer.py
 +++ b/src/twisted/internet/defer.py
-@@ -26,6 +26,7 @@ from typing import (
-     Generic,
-     Iterable,
-     List,
-+    Literal,
-     Mapping,
-     NoReturn,
-     Optional,
-@@ -39,7 +40,6 @@ from typing import (
+@@ -43,7 +43,7 @@ from typing import (
  
  import attr
  from incremental import Version
--from typing_extensions import Literal
+-from typing_extensions import Concatenate, Literal, ParamSpec, Self
++from typing import Concatenate, Literal, ParamSpec, Self
  
  from twisted.internet.interfaces import IDelayedCall, IReactorTime
  from twisted.logger import Logger
 diff --git a/src/twisted/internet/tcp.py b/src/twisted/internet/tcp.py
-index 80a27af..37b2363 100644
+index 8f85025..7bdedcf 100644
 --- a/src/twisted/internet/tcp.py
 +++ b/src/twisted/internet/tcp.py
-@@ -14,12 +14,12 @@ import os
- import socket
- import struct
- import sys
--from typing import Callable, ClassVar, List, Optional
-+from typing import Callable, ClassVar, List, Optional, Protocol
-+import typing
- 
+@@ -19,7 +19,7 @@ from typing import Callable, ClassVar, List, Optional, Union
  from zope.interface import Interface, implementer
  
  import attr
 -import typing_extensions
++import typing
  
  from twisted.internet.interfaces import (
      IHalfCloseableProtocol,
-@@ -936,7 +936,7 @@ class _IFileDescriptorReservation(Interface):
+@@ -948,7 +948,7 @@ class _IFileDescriptorReservation(Interface):
          """
  
  
@@ -100,21 +214,470 @@ index 80a27af..37b2363 100644
      def close(self) -> object:
          ...
  
-diff --git a/src/twisted/protocols/haproxy/_v2parser.py b/src/twisted/protocols/haproxy/_v2parser.py
-index 5b8e587..c6417b4 100644
---- a/src/twisted/protocols/haproxy/_v2parser.py
-+++ b/src/twisted/protocols/haproxy/_v2parser.py
-@@ -9,12 +9,11 @@ IProxyParser implementation for version two of the PROXY protocol.
- 
- import binascii
- import struct
--from typing import Callable, Tuple, Type, Union
-+from typing import Callable, Literal, Tuple, Type, Union
+diff --git a/src/twisted/internet/test/test_base.py b/src/twisted/internet/test/test_base.py
+index 875ed01..fb521a1 100644
+--- a/src/twisted/internet/test/test_base.py
++++ b/src/twisted/internet/test/test_base.py
+@@ -12,7 +12,7 @@ from unittest import skipIf
  
  from zope.interface import implementer
  
- from constantly import ValueConstant, Values  # type: ignore[import]
+-from typing_extensions import ParamSpec
++from typing import ParamSpec
+ 
+ from twisted.internet._resolver import FirstOneWins
+ from twisted.internet.base import DelayedCall, ReactorBase, ThreadedResolver
+diff --git a/src/twisted/internet/test/test_defer_await.py b/src/twisted/internet/test/test_defer_await.py
+index 5e2671a..23c3d0d 100644
+--- a/src/twisted/internet/test/test_defer_await.py
++++ b/src/twisted/internet/test/test_defer_await.py
+@@ -8,7 +8,7 @@ Tests for C{await} support in Deferreds.
+ 
+ import types
+ 
+-from typing_extensions import NoReturn
++from typing import NoReturn
+ 
+ from twisted.internet.defer import (
+     Deferred,
+diff --git a/src/twisted/internet/test/test_reactormixins.py b/src/twisted/internet/test/test_reactormixins.py
+index a31ae29..b833bd4 100644
+--- a/src/twisted/internet/test/test_reactormixins.py
++++ b/src/twisted/internet/test/test_reactormixins.py
+@@ -4,7 +4,7 @@ module.
+ """
+ 
+ from hamcrest import assert_that, equal_to, has_length
+-from typing_extensions import NoReturn
++from typing import NoReturn
+ 
+ # Trial should expose matches_result publically.
+ # https://github.com/twisted/twisted/issues/11709
+diff --git a/src/twisted/internet/test/test_testing.py b/src/twisted/internet/test/test_testing.py
+index 58323e1..66e6e73 100644
+--- a/src/twisted/internet/test/test_testing.py
++++ b/src/twisted/internet/test/test_testing.py
+@@ -10,7 +10,7 @@ from typing import Callable
+ 
+ from zope.interface.verify import verifyObject
+ 
+-from typing_extensions import Protocol
++from typing import Protocol
+ 
+ from twisted.internet.address import IPv4Address
+ from twisted.internet.interfaces import (
+diff --git a/src/twisted/internet/testing.py b/src/twisted/internet/testing.py
+index 2c37249..215ee2d 100644
+--- a/src/twisted/internet/testing.py
++++ b/src/twisted/internet/testing.py
+@@ -14,7 +14,7 @@ from typing import Callable, Iterator, Sequence, overload
+ from zope.interface import implementedBy, implementer
+ from zope.interface.verify import verifyClass
+ 
+-from typing_extensions import ParamSpec, Self
++from typing import ParamSpec, Self
+ 
+ from twisted.internet import address, error, protocol, task
+ from twisted.internet.abstract import _dataMustBeBytes, isIPv6Address
+diff --git a/src/twisted/internet/threads.py b/src/twisted/internet/threads.py
+index e9a49cb..2e088f1 100644
+--- a/src/twisted/internet/threads.py
++++ b/src/twisted/internet/threads.py
+@@ -12,7 +12,7 @@ from __future__ import annotations
+ import queue as Queue
+ from typing import Callable, TypeVar
+ 
+-from typing_extensions import ParamSpec
++from typing import ParamSpec
+ 
+ from twisted.internet import defer
+ from twisted.internet.interfaces import IReactorFromThreads
+diff --git a/src/twisted/names/test/test_hosts.py b/src/twisted/names/test/test_hosts.py
+index 972046c..2ffe0c1 100644
+--- a/src/twisted/names/test/test_hosts.py
++++ b/src/twisted/names/test/test_hosts.py
+@@ -6,7 +6,7 @@ Tests for the I{hosts(5)}-based resolver, L{twisted.names.hosts}.
+ """
+ from __future__ import annotations
+ 
+-from typing_extensions import Protocol
++from typing import Protocol
+ 
+ from twisted.internet.defer import gatherResults
+ from twisted.names.dns import (
+diff --git a/src/twisted/positioning/test/test_nmea.py b/src/twisted/positioning/test/test_nmea.py
+index 6e8b5ca..f283156 100644
+--- a/src/twisted/positioning/test/test_nmea.py
++++ b/src/twisted/positioning/test/test_nmea.py
+@@ -12,7 +12,7 @@ from typing import Callable, Iterable, TypedDict
+ from zope.interface import implementer
+ 
+ from constantly import NamedConstant
+-from typing_extensions import Literal, Protocol
++from typing import Literal, Protocol
+ 
+ from twisted.positioning import base, ipositioning, nmea
+ from twisted.positioning.base import Angles
+diff --git a/src/twisted/protocols/haproxy/_v2parser.py b/src/twisted/protocols/haproxy/_v2parser.py
+index cfcf7c9..bbcc7aa 100644
+--- a/src/twisted/protocols/haproxy/_v2parser.py
++++ b/src/twisted/protocols/haproxy/_v2parser.py
+@@ -14,7 +14,7 @@ from typing import Callable, Tuple, Type, Union
+ from zope.interface import implementer
+ 
+ from constantly import ValueConstant, Values
 -from typing_extensions import Literal
++from typing import Literal
  
  from twisted.internet import address
  from twisted.python import compat
+diff --git a/src/twisted/python/deprecate.py b/src/twisted/python/deprecate.py
+index c5df556..42a8c03 100644
+--- a/src/twisted/python/deprecate.py
++++ b/src/twisted/python/deprecate.py
+@@ -100,7 +100,7 @@ from typing import Any, Callable, Dict, Optional, TypeVar, cast
+ from warnings import warn, warn_explicit
+ 
+ from incremental import Version, getVersionString
+-from typing_extensions import ParamSpec
++from typing import ParamSpec
+ 
+ _P = ParamSpec("_P")
+ _R = TypeVar("_R")
+diff --git a/src/twisted/python/filepath.py b/src/twisted/python/filepath.py
+index c5feb2f..0175077 100644
+--- a/src/twisted/python/filepath.py
++++ b/src/twisted/python/filepath.py
+@@ -61,7 +61,7 @@ from typing import (
+ 
+ from zope.interface import Attribute, Interface, implementer
+ 
+-from typing_extensions import Literal
++from typing import Literal
+ 
+ from twisted.python.compat import cmp, comparable
+ from twisted.python.runtime import platform
+diff --git a/src/twisted/python/test/strategies.py b/src/twisted/python/test/strategies.py
+index 19cba6c..28e9b9d 100644
+--- a/src/twisted/python/test/strategies.py
++++ b/src/twisted/python/test/strategies.py
+@@ -6,7 +6,7 @@ Hypothesis strategies for values related to L{twisted.python}.
+ """
+ 
+ from hypothesis.strategies import SearchStrategy, characters, text
+-from typing_extensions import Literal
++from typing import Literal
+ 
+ 
+ def systemdDescriptorNames() -> SearchStrategy[str]:
+diff --git a/src/twisted/python/test/test_url.py b/src/twisted/python/test/test_url.py
+index 010761e..8e08a7e 100644
+--- a/src/twisted/python/test/test_url.py
++++ b/src/twisted/python/test/test_url.py
+@@ -9,7 +9,7 @@ from __future__ import annotations
+ 
+ from typing import Iterable
+ 
+-from typing_extensions import Protocol
++from typing import Protocol
+ 
+ from twisted.trial.unittest import SynchronousTestCase
+ from ..url import URL
+diff --git a/src/twisted/python/threadpool.py b/src/twisted/python/threadpool.py
+index ab5c0f1..e792ffd 100644
+--- a/src/twisted/python/threadpool.py
++++ b/src/twisted/python/threadpool.py
+@@ -14,7 +14,7 @@ from __future__ import annotations
+ from threading import Thread, current_thread
+ from typing import Any, Callable, List, Optional, TypeVar
+ 
+-from typing_extensions import ParamSpec, Protocol, TypedDict
++from typing import ParamSpec, Protocol, TypedDict
+ 
+ from twisted._threads import pool as _pool
+ from twisted.python import context, log
+diff --git a/src/twisted/python/zippath.py b/src/twisted/python/zippath.py
+index 9aa9c7c..7179226 100644
+--- a/src/twisted/python/zippath.py
++++ b/src/twisted/python/zippath.py
+@@ -29,7 +29,7 @@ from zipfile import ZipFile
+ 
+ from zope.interface import implementer
+ 
+-from typing_extensions import Literal, Self
++from typing import Literal, Self
+ 
+ from twisted.python.compat import cmp, comparable
+ from twisted.python.filepath import (
+diff --git a/src/twisted/test/test_defer.py b/src/twisted/test/test_defer.py
+index 1ae21ab..ff24251 100644
+--- a/src/twisted/test/test_defer.py
++++ b/src/twisted/test/test_defer.py
+@@ -43,7 +43,7 @@ from typing import (
+ from hamcrest import assert_that, empty, equal_to
+ from hypothesis import given
+ from hypothesis.strategies import integers
+-from typing_extensions import assert_type
++from typing import assert_type
+ 
+ from twisted.internet import defer, reactor
+ from twisted.internet.defer import (
+diff --git a/src/twisted/test/test_formmethod.py b/src/twisted/test/test_formmethod.py
+index 02990de..d450dce 100644
+--- a/src/twisted/test/test_formmethod.py
++++ b/src/twisted/test/test_formmethod.py
+@@ -8,7 +8,7 @@ Test cases for formmethod module.
+ 
+ from typing import Callable, Iterable
+ 
+-from typing_extensions import Concatenate, ParamSpec
++from typing import Concatenate, ParamSpec
+ 
+ from twisted.python import formmethod
+ from twisted.trial import unittest
+diff --git a/src/twisted/test/test_lockfile.py b/src/twisted/test/test_lockfile.py
+index 49b779b..cc26f88 100644
+--- a/src/twisted/test/test_lockfile.py
++++ b/src/twisted/test/test_lockfile.py
+@@ -11,7 +11,7 @@ import errno
+ import os
+ from unittest import skipIf, skipUnless
+ 
+-from typing_extensions import NoReturn
++from typing import NoReturn
+ 
+ from twisted.python import lockfile
+ from twisted.python.reflect import requireModule
+diff --git a/src/twisted/test/test_log.py b/src/twisted/test/test_log.py
+index 8d8c594..843e70e 100644
+--- a/src/twisted/test/test_log.py
++++ b/src/twisted/test/test_log.py
+@@ -17,7 +17,7 @@ from typing import Callable, List
+ 
+ from zope.interface import implementer
+ 
+-from typing_extensions import Protocol
++from typing import Protocol
+ 
+ from twisted.logger import (
+     ILogObserver,
+diff --git a/src/twisted/test/test_modules.py b/src/twisted/test/test_modules.py
+index 1e43500..3b06af3 100644
+--- a/src/twisted/test/test_modules.py
++++ b/src/twisted/test/test_modules.py
+@@ -15,7 +15,7 @@ from importlib.abc import PathEntryFinder
+ from types import ModuleType
+ from typing import Any, Generator
+ 
+-from typing_extensions import Protocol
++from typing import Protocol
+ 
+ import twisted
+ from twisted.python import modules
+diff --git a/src/twisted/test/test_monkey.py b/src/twisted/test/test_monkey.py
+index 1bef30e..8b1e0db 100644
+--- a/src/twisted/test/test_monkey.py
++++ b/src/twisted/test/test_monkey.py
+@@ -6,7 +6,7 @@ Tests for L{twisted.python.monkey}.
+ """
+ from __future__ import annotations
+ 
+-from typing_extensions import NoReturn
++from typing import NoReturn
+ 
+ from twisted.python.monkey import MonkeyPatcher
+ from twisted.trial import unittest
+diff --git a/src/twisted/test/test_paths.py b/src/twisted/test/test_paths.py
+index 71fe186..2db6057 100644
+--- a/src/twisted/test/test_paths.py
++++ b/src/twisted/test/test_paths.py
+@@ -20,7 +20,7 @@ from unittest import skipIf
+ 
+ from zope.interface.verify import verifyObject
+ 
+-from typing_extensions import NoReturn
++from typing import NoReturn
+ 
+ from twisted.python import filepath
+ from twisted.python.filepath import FileMode, OtherAnyStr
+diff --git a/src/twisted/test/test_persisted.py b/src/twisted/test/test_persisted.py
+index b6711c1..84145d1 100644
+--- a/src/twisted/test/test_persisted.py
++++ b/src/twisted/test/test_persisted.py
+@@ -10,7 +10,7 @@ import sys
+ import textwrap
+ from typing import Any, Callable, List, Tuple
+ 
+-from typing_extensions import NoReturn
++from typing import NoReturn
+ 
+ # Twisted Imports
+ from twisted.persisted import aot, crefutil, styles
+diff --git a/src/twisted/test/test_randbytes.py b/src/twisted/test/test_randbytes.py
+index aea7a68..3493e74 100644
+--- a/src/twisted/test/test_randbytes.py
++++ b/src/twisted/test/test_randbytes.py
+@@ -8,7 +8,7 @@ from __future__ import annotations
+ 
+ from typing import Callable
+ 
+-from typing_extensions import NoReturn, Protocol
++from typing import NoReturn, Protocol
+ 
+ from twisted.python import randbytes
+ from twisted.trial import unittest
+diff --git a/src/twisted/test/test_rebuild.py b/src/twisted/test/test_rebuild.py
+index e25fa95..becbcac 100644
+--- a/src/twisted/test/test_rebuild.py
++++ b/src/twisted/test/test_rebuild.py
+@@ -7,7 +7,7 @@ import os
+ import sys
+ import types
+ 
+-from typing_extensions import NoReturn
++from typing import NoReturn
+ 
+ from twisted.python import rebuild
+ from twisted.trial.unittest import TestCase
+diff --git a/src/twisted/trial/_asynctest.py b/src/twisted/trial/_asynctest.py
+index 048e8dc..06a608c 100644
+--- a/src/twisted/trial/_asynctest.py
++++ b/src/twisted/trial/_asynctest.py
+@@ -15,7 +15,7 @@ from typing import Callable, List
+ 
+ from zope.interface import implementer
+ 
+-from typing_extensions import ParamSpec
++from typing import ParamSpec
+ 
+ # We can't import reactor at module-level because this code runs before trial
+ # installs a user-specified reactor, installing the default reactor and
+diff --git a/src/twisted/trial/_dist/test/matchers.py b/src/twisted/trial/_dist/test/matchers.py
+index 836f536..0720d76 100644
+--- a/src/twisted/trial/_dist/test/matchers.py
++++ b/src/twisted/trial/_dist/test/matchers.py
+@@ -25,7 +25,7 @@ from hamcrest.core.base_matcher import BaseMatcher
+ from hamcrest.core.core.allof import AllOf
+ from hamcrest.core.description import Description
+ from hamcrest.core.matcher import Matcher
+-from typing_extensions import Protocol
++from typing import Protocol
+ 
+ from twisted.python.failure import Failure
+ 
+diff --git a/src/twisted/trial/_dist/worker.py b/src/twisted/trial/_dist/worker.py
+index 77e5021..bee179c 100644
+--- a/src/twisted/trial/_dist/worker.py
++++ b/src/twisted/trial/_dist/worker.py
+@@ -16,7 +16,7 @@ from unittest import TestCase
+ from zope.interface import implementer
+ 
+ from attrs import frozen
+-from typing_extensions import Protocol, TypedDict
++from typing import Protocol, TypedDict
+ 
+ from twisted.internet.defer import Deferred, DeferredList
+ from twisted.internet.error import ProcessDone
+diff --git a/src/twisted/trial/_dist/workerreporter.py b/src/twisted/trial/_dist/workerreporter.py
+index 5f2d7a0..d165ff1 100644
+--- a/src/twisted/trial/_dist/workerreporter.py
++++ b/src/twisted/trial/_dist/workerreporter.py
+@@ -14,7 +14,7 @@ from typing import Callable, List, Optional, Sequence, Type, TypeVar
+ from unittest import TestCase as PyUnitTestCase
+ 
+ from attrs import Factory, define
+-from typing_extensions import Literal
++from typing import Literal
+ 
+ from twisted.internet.defer import Deferred, maybeDeferred
+ from twisted.protocols.amp import AMP, MAX_VALUE_LENGTH
+diff --git a/src/twisted/trial/_synctest.py b/src/twisted/trial/_synctest.py
+index 6b1f43d..81e61d7 100644
+--- a/src/twisted/trial/_synctest.py
++++ b/src/twisted/trial/_synctest.py
+@@ -36,7 +36,7 @@ from typing import (
+ from unittest import SkipTest
+ 
+ from attrs import frozen
+-from typing_extensions import ParamSpec
++from typing import ParamSpec
+ 
+ from twisted.internet.defer import Deferred, ensureDeferred
+ from twisted.python import failure, log, monkey
+diff --git a/src/twisted/trial/reporter.py b/src/twisted/trial/reporter.py
+index 4ee67eb..75c774a 100644
+--- a/src/twisted/trial/reporter.py
++++ b/src/twisted/trial/reporter.py
+@@ -20,7 +20,7 @@ from typing import TYPE_CHECKING, List, Optional, Tuple, Type, Union
+ 
+ from zope.interface import implementer
+ 
+-from typing_extensions import TypeAlias
++from typing import TypeAlias
+ 
+ from twisted.python import log, reflect
+ from twisted.python.components import proxyForInterface
+diff --git a/src/twisted/trial/runner.py b/src/twisted/trial/runner.py
+index ffc554e..a117f96 100644
+--- a/src/twisted/trial/runner.py
++++ b/src/twisted/trial/runner.py
+@@ -42,7 +42,7 @@ from typing import Callable, Generator, List, Optional, TextIO, Type, Union
+ from zope.interface import implementer
+ 
+ from attrs import define
+-from typing_extensions import ParamSpec, Protocol, TypeAlias, TypeGuard
++from typing import ParamSpec, Protocol, TypeAlias, TypeGuard
+ 
+ from twisted.internet import defer
+ from twisted.python import failure, filepath, log, modules, reflect
+diff --git a/src/twisted/trial/util.py b/src/twisted/trial/util.py
+index a8345cc..e71953c 100644
+--- a/src/twisted/trial/util.py
++++ b/src/twisted/trial/util.py
+@@ -22,7 +22,7 @@ from __future__ import annotations
+ from random import randrange
+ from typing import Any, Callable, TextIO, TypeVar
+ 
+-from typing_extensions import ParamSpec
++from typing import ParamSpec
+ 
+ from twisted.internet import interfaces, utils
+ from twisted.python.failure import Failure
+diff --git a/src/twisted/web/static.py b/src/twisted/web/static.py
+index aeffd03..c18db27 100644
+--- a/src/twisted/web/static.py
++++ b/src/twisted/web/static.py
+@@ -20,7 +20,7 @@ from urllib.parse import quote, unquote
+ from zope.interface import implementer
+ 
+ from incremental import Version
+-from typing_extensions import Literal
++from typing import Literal
+ 
+ from twisted.internet import abstract, interfaces
+ from twisted.python import components, filepath, log
+diff --git a/src/twisted/web/test/test_xml.py b/src/twisted/web/test/test_xml.py
+index 468e877..bfa94e6 100644
+--- a/src/twisted/web/test/test_xml.py
++++ b/src/twisted/web/test/test_xml.py
+@@ -10,7 +10,7 @@ from __future__ import annotations
+ from importlib import reload
+ from io import BytesIO
+ 
+-from typing_extensions import Literal
++from typing import Literal
+ 
+ from twisted.trial.unittest import TestCase
+ from twisted.web import domhelpers, microdom, sux
+diff --git a/tox.ini b/tox.ini
+index 9f5e961..88824d4 100644
+--- a/tox.ini
++++ b/tox.ini
+@@ -78,7 +78,6 @@ deps =
+     mindeps: Automat == 0.8.0
+     mindeps: hyperlink == 17.1.1
+     mindeps: attrs == 21.3.0
+-    mindeps: typing_extensions == 4.2.0
+     # TLS
+     mindeps: pyopenssl == 21.0.0
+     mindeps: service_identity == 18.1.0

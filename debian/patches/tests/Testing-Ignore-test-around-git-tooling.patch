@@ -6,14 +6,14 @@ We build based on extracted data from an tarball, therefore the git
 checking functions can't work and we place simply a static link to the
 upstream data.
 ---
- src/twisted/python/test/test_release.py | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ src/twisted/python/test/test_release.py | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
 diff --git a/src/twisted/python/test/test_release.py b/src/twisted/python/test/test_release.py
-index d55a40e..78d0a5f 100644
+index 62f048e..d6e7aaf 100644
 --- a/src/twisted/python/test/test_release.py
 +++ b/src/twisted/python/test/test_release.py
-@@ -55,6 +55,8 @@ GENERIC_CI_ENVIRON = {
+@@ -48,6 +48,8 @@ GENERIC_CI_ENVIRON = {
  }
  
  
@@ -22,7 +22,7 @@ index d55a40e..78d0a5f 100644
  class ExternalTempdirTestCase(TestCase):
      """
      A test case which has mkdir make directories outside of the usual spot, so
-@@ -514,6 +516,8 @@ class CommandsTestMixin(StructureAssertingMixin):
+@@ -353,6 +355,8 @@ class CommandsTestMixin(StructureAssertingMixin):
      Test mixin for the VCS commands used by the release scripts.
      """
  
@@ -31,7 +31,7 @@ index d55a40e..78d0a5f 100644
      def setUp(self):
          self.tmpDir = FilePath(self.mktemp())
  
-@@ -599,6 +603,8 @@ class GitCommandTest(CommandsTestMixin, ExternalTempdirTestCase):
+@@ -438,6 +442,8 @@ class GitCommandTest(CommandsTestMixin, ExternalTempdirTestCase):
      L{GitCommand}.
      """
  
@@ -40,12 +40,3 @@ index d55a40e..78d0a5f 100644
      createCommand = GitCommand
  
      def makeRepository(self, root):
-@@ -669,6 +675,8 @@ class CheckNewsfragmentScriptTests(ExternalTempdirTestCase):
-     L{CheckNewsfragmentScript}.
-     """
- 
-+    skip = "Not relevant within Debian."
-+
-     def setUp(self):
-         self.origin = FilePath(self.mktemp())
-         _gitInit(self.origin)

@@ -1,6 +1,8 @@
 Tests: unit-tests-3
-Restrictions: needs-root
+Restrictions: allow-stderr
 Depends:
+ locales-all,
+ python3-all,
  python3-hamcrest,
- python3-setuptools,
- @,
+ python3-hypothesis,
+ python3-twisted,

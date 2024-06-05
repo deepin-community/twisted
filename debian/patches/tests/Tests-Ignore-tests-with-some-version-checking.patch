@@ -51,33 +51,33 @@ twisted.trial.unittest.FailTest: '[dummy, version 1.0.0rc1]' != '[dummy, version
  1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/src/twisted/python/test/test_versions.py b/src/twisted/python/test/test_versions.py
-index 351d930..862198e 100644
+index e9d17bf..59a71ba 100644
 --- a/src/twisted/python/test/test_versions.py
 +++ b/src/twisted/python/test/test_versions.py
-@@ -120,7 +120,7 @@ class VersionsTests(TestCase):
+@@ -121,7 +121,7 @@ class VersionsTests(TestCase):
          """
          self.assertEqual(str(Version("dummy", 1, 2, 3)), "[dummy, version 1.2.3]")
  
--    def test_strWithPrerelease(self):
-+    def _test_strWithPrerelease(self):
+-    def test_strWithPrerelease(self) -> None:
++    def _test_strWithPrerelease(self) -> None:
          """
          Calling C{str} on a version with a prerelease includes the prerelease.
          """
-@@ -138,7 +138,7 @@ class VersionsTests(TestCase):
+@@ -139,7 +139,7 @@ class VersionsTests(TestCase):
          """
          self.assertEqual("Twisted 8.0.0", getVersionString(Version("Twisted", 8, 0, 0)))
  
--    def test_getVersionStringWithPrerelease(self):
-+    def _test_getVersionStringWithPrerelease(self):
+-    def test_getVersionStringWithPrerelease(self) -> None:
++    def _test_getVersionStringWithPrerelease(self) -> None:
          """
          L{getVersionString} includes the prerelease, if any.
          """
-@@ -153,7 +153,7 @@ class VersionsTests(TestCase):
+@@ -154,7 +154,7 @@ class VersionsTests(TestCase):
          """
          self.assertEqual(Version("foo", 1, 0, 0).base(), "1.0.0")
  
--    def test_baseWithPrerelease(self):
-+    def _test_baseWithPrerelease(self):
+-    def test_baseWithPrerelease(self) -> None:
++    def _test_baseWithPrerelease(self) -> None:
          """
          The base version includes 'preX' for versions with prereleases.
          """

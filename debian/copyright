@@ -5,7 +5,7 @@ Files-Excluded:
 
 Files: *
 Copyright:
- 2001-2021 Twisted Matrix Laboratories
+ 2001-2023 Twisted Matrix Laboratories
            Allen Short
            Amber Hawkie Brown
            Andrew Bennetts
@@ -71,6 +71,7 @@ Copyright:
  2004-2011, 2014-2020 Matthias Klose <doko@debian.org>
  2018 Mattia Rizzolo <mattia@debian.org>
  2001-2004 Moshe Zadka <moshez@debian.org>
+ 2022-2023, Stefano Rivera <stefanor@debian.org>
 License: Expat
 
 License: Expat

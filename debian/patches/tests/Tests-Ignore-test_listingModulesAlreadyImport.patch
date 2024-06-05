@@ -9,15 +9,15 @@ ignore.
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/twisted/test/test_modules.py b/src/twisted/test/test_modules.py
-index 77a7552..ed981be 100644
+index 8e23660..1e43500 100644
 --- a/src/twisted/test/test_modules.py
 +++ b/src/twisted/test/test_modules.py
-@@ -357,7 +357,7 @@ class PathModificationTests(TwistedModulesTestCase):
+@@ -374,7 +374,7 @@ class PathModificationTests(TwistedModulesTestCase):
          self._setupSysPath()
          self._listModules()
  
--    def test_listingModulesAlreadyImported(self):
-+    def _test_listingModulesAlreadyImported(self):
+-    def test_listingModulesAlreadyImported(self) -> None:
++    def _test_listingModulesAlreadyImported(self) -> None:
          """
          Make sure the module list comes back as we expect from iterModules on a
          package, whether zipped or not, even if the package has already been

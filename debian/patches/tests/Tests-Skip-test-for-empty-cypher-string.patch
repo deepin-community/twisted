@@ -11,10 +11,10 @@ Forwarded: https://github.com/openssl/openssl/issues/7725
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/twisted/test/test_sslverify.py b/src/twisted/test/test_sslverify.py
-index faae0ac..e9725ab 100644
+index 8f59fa8..dc64be1 100644
 --- a/src/twisted/test/test_sslverify.py
 +++ b/src/twisted/test/test_sslverify.py
-@@ -2789,7 +2789,7 @@ class ExpandCipherStringTests(TestCase):
+@@ -2802,7 +2802,7 @@ class ExpandCipherStringTests(TestCase):
      if skipSSL:
          skip = skipSSL
  

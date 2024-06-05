@@ -1,3 +1,62 @@
+twisted (24.3.0-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Refresh patches.
+  * Drop unittest-skip-3.12.1.patch, superseded upstream.
+
+ -- Stefano Rivera <stefanor@debian.org>  Mon, 04 Mar 2024 10:57:17 -0400
+
+twisted (23.10.0-2) unstable; urgency=medium
+
+  * Patch: Skip test_sendFileDescriptorTriggersPauseProducing, as it was
+    failing in Debian CI.
+
+ -- Stefano Rivera <stefanor@debian.org>  Tue, 26 Dec 2023 10:02:51 -0400
+
+twisted (23.10.0-1) unstable; urgency=medium
+
+  [ Matthias Klose ]
+  * Remove myself as uploader.
+
+  [ Stefano Rivera ]
+  * Add myself as an uploader.
+  * New upstream release.
+    - Resolves CVE-2023-46137: Disordered HTTP pipeline response in
+      twisted.web. (Closes: #1054913)
+  * Refresh patches.
+  * Drop patches, superseded upstream:
+    - debian-hacks/Sphinx-Set-html_theme-to-twisteddefault.patch
+    - documentation/pydoctor-22.7.patch
+    - Implement-twisted.python.failure._Code.co_positions.patch
+    - Deprecate-twisted.web.resource.ErrorPage-and-spawn.patch
+    - Implement-twisted.web.pages.patch
+    - Update-imports-to-avoid-warnings.patch
+    - Update-the-docs.patch
+    - Address-DummyRequest-MyPy-issue.patch
+    - Address-IRenderable-MyPy-issue.patch
+    - Failing-test.patch
+    - Fix-NameVirtualHost-HTML-injection-vulnerability.patch
+    - Fix-references-to-twisted.pages.patch
+    - Call-the-superclass-constructor-via-private-alias.patch
+    - twisted.web.pages.-ErrorPage-errorPage.patch
+    - tests/Tests-remove-spurious-test-for-illegal-whitespace-in-xmlns.patch
+    - Add-CVE-to-newsfragment.patch
+    - Tests-Handle-setlocale-more-tolerant.patch
+  * Bump copyright years.
+  * Migrate to pybuild-plugin-pyproject and hatchling.
+  * Build-Depend on python3-sphinx-rtd-theme, now used by the docs.
+  * autopkgtest: Permit stderr.
+  * autopkgtest: Run without root, on all supported python 3 versions.
+  * autopkgtest: Depend on python3-hypothesis and locales-all.
+    - All pass now. (Closes: #1033516)
+  * Allow 2 digit minor versions in watch.
+  * Patch: Don't embed the build date in docs, making them reproducible.
+    (Closes: #1034499)
+  * Patch: Support unittest behaviour change in Python 3.12.1.
+  * Bump Standards-Version to 4.6.2, no changes needed.
+
+ -- Stefano Rivera <stefanor@debian.org>  Mon, 25 Dec 2023 10:49:12 -0400
+
 twisted (22.4.0-4) unstable; urgency=medium
 
   * Team upload.

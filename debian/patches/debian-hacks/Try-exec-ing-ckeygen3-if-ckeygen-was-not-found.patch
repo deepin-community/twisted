@@ -12,10 +12,10 @@ Last-Updated: 2021-02-13
  1 file changed, 13 insertions(+), 4 deletions(-)
 
 diff --git a/src/twisted/conch/test/test_ckeygen.py b/src/twisted/conch/test/test_ckeygen.py
-index 584f59e..44ec294 100644
+index 962ccb6..51f0a46 100644
 --- a/src/twisted/conch/test/test_ckeygen.py
 +++ b/src/twisted/conch/test/test_ckeygen.py
-@@ -77,7 +77,11 @@ class KeyGenTests(TestCase):
+@@ -88,7 +88,11 @@ class KeyGenTests(TestCase):
              args.extend(["-b", keySize])
          if privateKeySubtype is not None:
              args.extend(["--private-key-subtype", privateKeySubtype])
@@ -28,7 +28,7 @@ index 584f59e..44ec294 100644
          privKey = Key.fromFile(filename)
          pubKey = Key.fromFile(filename + ".pub")
          if keyType == "ecdsa":
-@@ -107,9 +111,14 @@ class KeyGenTests(TestCase):
+@@ -118,9 +122,14 @@ class KeyGenTests(TestCase):
          filename = self.mktemp()
          with self.assertRaises(subprocess.CalledProcessError):
              with open(os.devnull, "rb") as devnull:
@@ -44,5 +44,5 @@ index 584f59e..44ec294 100644
 +                        ['ckeygen3', '-t', 'foo', '-f', filename],
 +                        stderr=devnull)
  
-     def test_enumrepresentation(self):
+     def test_enumrepresentation(self) -> None:
          """

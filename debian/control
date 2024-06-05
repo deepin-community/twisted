@@ -3,11 +3,12 @@ Section: python
 Priority: optional
 Maintainer: Debian Python Team <team+python@tracker.debian.org>
 Uploaders:
- Matthias Klose <doko@debian.org>,
+ Stefano Rivera <stefanor@debian.org>,
 Build-Depends:
  debhelper-compat (= 13),
  dh-sequence-python3,
  patch,
+ pybuild-plugin-pyproject,
  pydoctor (>= 22.7),
  python3-all,
  python3-attr (>= 19.2.0),
@@ -15,14 +16,16 @@ Build-Depends:
  python3-constantly,
  python3-doc,
  python3-hamcrest,
+ python3-hatch-fancy-pypi-readme,
+ python3-hatchling,
  python3-hyperlink,
  python3-incremental (>= 21.3.0),
- python3-setuptools,
+ python3-sphinx-rtd-theme,
  python3-zope.interface (>= 4.4.2),
 Build-Depends-Indep:
  python3-sphinx <!nodoc>,
 Rules-Requires-Root: no
-Standards-Version: 4.6.0
+Standards-Version: 4.6.2
 Homepage: https://twistedmatrix.com/
 Vcs-Browser: https://salsa.debian.org/python-team/packages/twisted
 Vcs-Git: https://salsa.debian.org/python-team/packages/twisted.git

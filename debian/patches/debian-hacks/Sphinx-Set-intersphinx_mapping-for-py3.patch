@@ -11,10 +11,10 @@ Bug-Debian: https://bugs.debian.org/836169
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/docs/conf.py b/docs/conf.py
-index 3122b10..064e73f 100644
+index b20a4ef..9135aec 100644
 --- a/docs/conf.py
 +++ b/docs/conf.py
-@@ -259,7 +259,7 @@ traclinks_base_url = "https://twistedmatrix.com/trac"
+@@ -205,7 +205,7 @@ pydoctor_url_path = "/en/{rtd_version}/api/"
  # tuple of (<external sphinx documentation URI>, <inventory file location>).
  # The inventory file may be None to use the default location at the given URI.
  intersphinx_mapping = {
