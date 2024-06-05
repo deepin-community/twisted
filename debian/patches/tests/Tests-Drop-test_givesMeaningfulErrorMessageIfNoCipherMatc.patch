@@ -9,10 +9,10 @@ Forwarded: not-needed
  1 file changed, 15 deletions(-)
 
 diff --git a/src/twisted/test/test_sslverify.py b/src/twisted/test/test_sslverify.py
-index e9725ab..f62c29b 100644
+index dc64be1..5e11f9f 100644
 --- a/src/twisted/test/test_sslverify.py
 +++ b/src/twisted/test/test_sslverify.py
-@@ -896,21 +896,6 @@ class OpenSSLOptionsTests(OpenSSLOptionsTestsMixin, TestCase):
+@@ -901,21 +901,6 @@ class OpenSSLOptionsTests(OpenSSLOptionsTestsMixin, TestCase):
          ctx = opts.getContext()
          self.assertEqual(opts._cipherString.encode("ascii"), ctx._cipherList)
  

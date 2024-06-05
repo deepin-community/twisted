@@ -1,7 +1,14 @@
-#!/bin/sh -e
+#!/bin/sh
 
-chown nobody ${AUTOPKGTEST_TMP}
+set -euf
 
-cd ${AUTOPKGTEST_TMP} && \
-    ls -la && \
-    echo "python3 -m twisted.trial --temp-directory=${AUTOPKGTEST_TMP}/_trial_temp --reactor=default --reporter=verbose -e twisted" | su -s /bin/sh nobody
+cd ${AUTOPKGTEST_TMP}
+
+for py in $(py3versions -s); do
+    echo "=== $py ==="
+    $py -m twisted.trial \
+        --temp-directory=${AUTOPKGTEST_TMP}/_trial_temp_$py \
+        --reactor=default \
+        --reporter=verbose \
+        -e twisted
+done

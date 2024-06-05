@@ -1,0 +1,24 @@
+From: Stefano Rivera <stefanor@debian.org>
+Date: Tue, 26 Dec 2023 09:48:52 -0400
+Subject: Skip test_sendFileDescriptorTriggersPauseProducing
+
+Fails in Debian CI under LXC (only on AMD64?)
+
+Forwarded: not-needed
+---
+ src/twisted/internet/test/test_unix.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/twisted/internet/test/test_unix.py b/src/twisted/internet/test/test_unix.py
+index 3ff2aed..49e2a60 100644
+--- a/src/twisted/internet/test/test_unix.py
++++ b/src/twisted/internet/test/test_unix.py
+@@ -334,7 +334,7 @@ class UNIXTestsBuilder(UNIXFamilyMixin, ReactorBuilder, ConnectionTestsMixin):
+ 
+         runProtocolsWithReactor(self, server, client, self.endpoints)
+ 
+-    @skipIf(not sendmsg, sendmsgSkipReason)
++    @skipIf(True, "fails under LXC in Debian CI")
+     def test_sendFileDescriptorTriggersPauseProducing(self):
+         """
+         If a L{IUNIXTransport.sendFileDescriptor} call fills up
