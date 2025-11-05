@@ -2,7 +2,10 @@ Tests: unit-tests-3
 Restrictions: allow-stderr
 Depends:
  locales-all,
+ openssh-client,
  python3-all,
  python3-hamcrest,
+ python3-httpx (>= 0.27),
  python3-hypothesis,
  python3-twisted,
+ python3-wsproto,

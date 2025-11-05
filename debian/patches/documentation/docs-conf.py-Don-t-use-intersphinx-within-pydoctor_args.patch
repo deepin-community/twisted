@@ -28,10 +28,10 @@ index 6543789..ae534d9 100644
  # How long to cache remote inventories. Positive is a number of days,
  # negative means infinite. The default is 5 days, which should be fine
 diff --git a/setup.cfg b/setup.cfg
-index a95fe42..5f6161d 100644
+index c8b7b5b..62a9bc0 100644
 --- a/setup.cfg
 +++ b/setup.cfg
-@@ -90,17 +90,17 @@ privacy=
+@@ -91,17 +91,17 @@ privacy=
      HIDDEN:twisted.internet.test
      HIDDEN:twisted.test.*
      PUBLIC:twisted.test.proto_helpers

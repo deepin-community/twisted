@@ -4,9 +4,15 @@ set -euf
 
 cd ${AUTOPKGTEST_TMP}
 
+# See discussion in https://bugs.debian.org/965041.
+export CRYPTOGRAPHY_OPENSSL_NO_LEGACY=1
+
 for py in $(py3versions -s); do
     echo "=== $py ==="
-    $py -m twisted.trial \
+    # Should just be $py -m twisted.trial, but this forces the Hypothesis
+    # profile in twisted.trial.test to be loaded at the right time.  See
+    # https://bugs.debian.org/1116155.
+    $py -c 'import sys; import twisted.trial.test; from twisted.scripts.trial import run; sys.exit(run())' \
         --temp-directory=${AUTOPKGTEST_TMP}/_trial_temp_$py \
         --reactor=default \
         --reporter=verbose \

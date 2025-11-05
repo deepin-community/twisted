@@ -14,7 +14,7 @@ export PYBUILD_AFTER_INSTALL=rm -rf {destdir}/usr/lib/python3*/dist-packages/twi
 %:
 	dh $@ --with sphinxdoc --buildsystem=pybuild
 
-override_dh_clean:
+execute_before_dh_clean:
 	rm -rf *-stamp build tmp
 	rm -rf docs/_build build-doc
 	rm -rf build3-python*
@@ -23,7 +23,6 @@ override_dh_clean:
 	rm -f twisted/plugins/dropin.cache
 	find -name '__pycache__' -type d | xargs -r rm -rf
 	find . -name "*.pyc" |xargs -r rm
-	dh_clean
 
 override_dh_sphinxdoc:
 ifeq (,$(findstring nodoc, $(DEB_BUILD_OPTIONS)))
@@ -46,9 +45,9 @@ ifeq (,$(findstring nodoc, $(DEB_BUILD_OPTIONS)))
 	done
 endif
 
-override_dh_auto_install:
-	dh_auto_install
+execute_after_dh_auto_install:
 	find debian/python3-twisted -name '__pycache__' | xargs -r rm -rf
+	find debian/python3-twisted -name .gitignore -delete
 	# Replace all '#!' calls to python with /usr/bin/python3 and make them
 	# executable.
 	for i in `find debian/python3-twisted -mindepth 3 -type f`; do \
@@ -75,6 +74,3 @@ override_dh_auto_install:
 override_dh_compress:
 	# Don't compress an Python files. Especially not in twisted-doc.
 	dh_compress -i -X.py
-
-override_dh_python3:
-	dh_python3 -i -X hamcrest

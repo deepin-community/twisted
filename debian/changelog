@@ -1,3 +1,101 @@
+twisted (25.5.0-4) unstable; urgency=medium
+
+  * Load Hypothesis profile at the right time in autopkgtests.
+
+ -- Colin Watson <cjwatson@debian.org>  Sat, 27 Sep 2025 23:41:08 +0100
+
+twisted (25.5.0-3) unstable; urgency=medium
+
+  * Skip slow/flaky test_writeBuffering (closes: #1116155).
+
+ -- Colin Watson <cjwatson@debian.org>  Thu, 25 Sep 2025 10:56:12 +0100
+
+twisted (25.5.0-2) unstable; urgency=medium
+
+  * d/watch: Upgrade to v5.
+  * Drop some Breaks that are only relevant to pre-bookworm systems.
+  * Standards-Version: 4.7.2.
+
+ -- Colin Watson <cjwatson@debian.org>  Thu, 18 Sep 2025 13:00:29 +0100
+
+twisted (25.5.0-1) experimental; urgency=medium
+
+  * New upstream release.
+
+ -- Colin Watson <cjwatson@debian.org>  Wed, 18 Jun 2025 12:11:09 +0100
+
+twisted (24.11.0-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Drop patches to fix tests on OpenSSL 1.1.1, long since fixed in other
+    ways upstream.
+
+ -- Colin Watson <cjwatson@debian.org>  Mon, 02 Dec 2024 10:27:19 +0000
+
+twisted (24.10.0-2) unstable; urgency=medium
+
+  * Fix HTTP server support of UNIX filesystem sockets (closes: #1087390).
+  * Add myself to Uploaders.
+
+ -- Colin Watson <cjwatson@debian.org>  Fri, 22 Nov 2024 10:54:55 +0000
+
+twisted (24.10.0-1) unstable; urgency=medium
+
+  * Team upload.
+  * New upstream release.
+
+ -- Colin Watson <cjwatson@debian.org>  Mon, 28 Oct 2024 11:07:53 +0000
+
+twisted (24.7.0-3) unstable; urgency=medium
+
+  * Team upload.
+  * Fix test_manhole on Python 3.12.6/3.13rc2 (closes: #1081419).
+
+ -- Colin Watson <cjwatson@debian.org>  Mon, 16 Sep 2024 17:34:12 +0100
+
+twisted (24.7.0-2) unstable; urgency=medium
+
+  [ Colin Watson ]
+  * Remove Google Analytics tracker from documentation.
+  * Update syntax of privacy-breach-generic Lintian override.
+  * Simplify some debhelper overrides slightly.
+  * Remove .gitignore files from python3-twisted.
+
+  [ Stefano Rivera ]
+  * Drop unnecessary dh_python3 override.
+
+ -- Colin Watson <cjwatson@debian.org>  Sun, 01 Sep 2024 15:22:10 +0100
+
+twisted (24.7.0-1) unstable; urgency=medium
+
+  * Team upload.
+  * New upstream release:
+    - CVE-2024-41810: twisted.web.util.redirectTo now HTML-escapes the
+      provided URL in the fallback response body it returns (closes:
+      #1077680).
+    - CVE-2024-41671: The HTTP 1.0 and 1.1 server provided by twisted.web
+      could process pipelined HTTP requests out-of-order, possibly resulting
+      in information disclosure (closes: #1077679).
+
+ -- Colin Watson <cjwatson@debian.org>  Wed, 14 Aug 2024 15:05:23 +0100
+
+twisted (24.3.0-3) unstable; urgency=medium
+
+  * Team upload.
+  * Fix twisted.conch tests with OpenSSH >= 9.8.
+  * Explicitly depend on openssh-client for our autopkgtest, so that it's
+    triggered by openssh changes.
+
+ -- Colin Watson <cjwatson@debian.org>  Fri, 02 Aug 2024 15:19:03 +0100
+
+twisted (24.3.0-2) unstable; urgency=medium
+
+  * Team upload.
+  * Patch: fix test_flatten in autopkgtest. (Closes: #1073996)
+    This patch can probably be dropped after next upstream release.
+
+ -- Florent 'Skia' Jacquet <florent.jacquet@canonical.com>  Mon, 24 Jun 2024 10:50:35 +0100
+
 twisted (24.3.0-1) unstable; urgency=medium
 
   * New upstream release.

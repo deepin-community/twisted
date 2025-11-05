@@ -2,8 +2,6 @@ debian-hacks/Sphinx-Set-intersphinx_mapping-for-py3.patch
 debian-hacks/Security-Fix-vulnerable-example-of-PYTHONPATH.patch
 debian-hacks/Sphinx-Adjust-setup-of-sys.path.insert.patch
 tests/Tests-Fix-ckeygen-test-writing-to-stderr.patch
-tests/Tests-Skip-test-for-empty-cypher-string.patch
-tests/Tests-Drop-test_givesMeaningfulErrorMessageIfNoCipherMatc.patch
 debian-hacks/Try-exec-ing-ckeygen3-if-ckeygen-was-not-found.patch
 documentation/docs-Don-t-depend-on-git-stuff.patch
 documentation/docs-conf.py-Don-t-use-intersphinx-within-pydoctor_args.patch
@@ -11,7 +9,6 @@ documentation/docs-conf.py-Adjust-the-intersphinx-mapping.patch
 tests/Testing-Ignore-test-around-git-tooling.patch
 tests/Test-Ignore-test_failure.py-file.patch
 tests/Tests-Ignore-test_listingModulesAlreadyImport.patch
-tests/Tests-Ignore-tests-with-some-version-checking.patch
 debian-hacks/Drop-dependency-on-typing_extensions.patch
 debian-hacks/reproducible-docs.patch
 tests/skip-test_sendFileDescriptorTriggersPauseProducing.patch

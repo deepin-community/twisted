@@ -4,6 +4,7 @@ Priority: optional
 Maintainer: Debian Python Team <team+python@tracker.debian.org>
 Uploaders:
  Stefano Rivera <stefanor@debian.org>,
+ Colin Watson <cjwatson@debian.org>,
 Build-Depends:
  debhelper-compat (= 13),
  dh-sequence-python3,
@@ -11,21 +12,23 @@ Build-Depends:
  pybuild-plugin-pyproject,
  pydoctor (>= 22.7),
  python3-all,
- python3-attr (>= 19.2.0),
- python3-automat (>= 0.8.0),
+ python3-attr (>= 22.2.0),
+ python3-automat (>= 24.8.0),
  python3-constantly,
  python3-doc,
  python3-hamcrest,
  python3-hatch-fancy-pypi-readme,
  python3-hatchling,
+ python3-httpx (>= 0.27),
  python3-hyperlink,
- python3-incremental (>= 21.3.0),
+ python3-incremental (>= 24.7.0),
  python3-sphinx-rtd-theme,
+ python3-wsproto,
  python3-zope.interface (>= 4.4.2),
 Build-Depends-Indep:
  python3-sphinx <!nodoc>,
 Rules-Requires-Root: no
-Standards-Version: 4.6.2
+Standards-Version: 4.7.2
 Homepage: https://twistedmatrix.com/
 Vcs-Browser: https://salsa.debian.org/python-team/packages/twisted
 Vcs-Git: https://salsa.debian.org/python-team/packages/twisted.git
@@ -45,6 +48,7 @@ Suggests:
  python3-pampy,
  python3-serial,
  python3-tk,
+ python3-wsproto,
  python3-wxgtk4.0,
 Provides:
  ${python:Provides},
@@ -52,9 +56,6 @@ Conflicts:
  python3-twisted-experimental,
 Replaces:
  python3-twisted-experimental,
-Breaks:
- python3-h2 (<< 3.0.0),
- python3-treq (<< 20.9.0),
 Description: Event-based framework for internet applications
  It includes a web server, a telnet server, a multiplayer RPG engine, a
  generic client and server for remote object access, and APIs for creating

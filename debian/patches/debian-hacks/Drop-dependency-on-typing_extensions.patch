@@ -55,7 +55,7 @@ typing_extensions to support older Pythons.
  47 files changed, 47 insertions(+), 49 deletions(-)
 
 diff --git a/pyproject.toml b/pyproject.toml
-index e7865c6..1b6fff7 100644
+index 9079b40..040cf32 100644
 --- a/pyproject.toml
 +++ b/pyproject.toml
 @@ -17,7 +17,7 @@ dynamic = [
@@ -65,16 +65,16 @@ index e7865c6..1b6fff7 100644
 -requires-python = ">=3.8.0"
 +requires-python = ">=3.11.0"
  authors = [
-     { name = "Twisted Matrix Laboratories", email = "twisted-python@twistedmatrix.com" },
+     { name = "Twisted Matrix Community", email = "twisted@python.org" },
  ]
-@@ -37,7 +37,6 @@ dependencies = [
-     "Automat >= 0.8.0",
+@@ -38,7 +38,6 @@ dependencies = [
+     "Automat >= 24.8.0",
      "hyperlink >= 17.1.1",
-     "attrs >= 21.3.0",
+     "attrs >= 22.2.0",
 -    "typing_extensions >= 4.2.0",
-     "twisted-iocpsupport >= 1.0.2, <2; platform_system == 'Windows'",
  ]
  
+ # Switch to this when the legacy optional dependency names are removed
 diff --git a/src/twisted/_threads/_pool.py b/src/twisted/_threads/_pool.py
 index 99c055d..d0e1835 100644
 --- a/src/twisted/_threads/_pool.py
@@ -115,10 +115,10 @@ index 3ade2d8..6f4e1de 100644
  from twisted.conch import error
  from twisted.conch.ssh import keys
 diff --git a/src/twisted/conch/ssh/keys.py b/src/twisted/conch/ssh/keys.py
-index e959f02..ff54137 100644
+index e52608d..5a4ea43 100644
 --- a/src/twisted/conch/ssh/keys.py
 +++ b/src/twisted/conch/ssh/keys.py
-@@ -26,7 +26,7 @@ from cryptography.hazmat.primitives.serialization import (
+@@ -27,7 +27,7 @@ from cryptography.hazmat.primitives.serialization import (
      load_pem_private_key,
      load_ssh_public_key,
  )
@@ -128,7 +128,7 @@ index e959f02..ff54137 100644
  from twisted.conch.ssh import common, sexpy
  from twisted.conch.ssh.common import int_to_bytes
 diff --git a/src/twisted/conch/ssh/transport.py b/src/twisted/conch/ssh/transport.py
-index d46f093..4a6df41 100644
+index 323236f..ab6564d 100644
 --- a/src/twisted/conch/ssh/transport.py
 +++ b/src/twisted/conch/ssh/transport.py
 @@ -24,7 +24,7 @@ from cryptography.hazmat.backends import default_backend
@@ -167,7 +167,7 @@ index 18793bf..c49b980 100644
  from twisted.internet.interfaces import IReadDescriptor
  from twisted.python import failure, log, util
 diff --git a/src/twisted/internet/address.py b/src/twisted/internet/address.py
-index 10fa852..3518273 100644
+index d0ab1f6..b9f4532 100644
 --- a/src/twisted/internet/address.py
 +++ b/src/twisted/internet/address.py
 @@ -13,7 +13,7 @@ from warnings import warn
@@ -180,7 +180,7 @@ index 10fa852..3518273 100644
  from twisted.internet.interfaces import IAddress
  from twisted.python.filepath import _asFilesystemBytes, _coerceToFilesystemEncoding
 diff --git a/src/twisted/internet/defer.py b/src/twisted/internet/defer.py
-index caafb52..0e81e25 100644
+index 1892eb4..9dd9643 100644
 --- a/src/twisted/internet/defer.py
 +++ b/src/twisted/internet/defer.py
 @@ -43,7 +43,7 @@ from typing import (
@@ -193,10 +193,10 @@ index caafb52..0e81e25 100644
  from twisted.internet.interfaces import IDelayedCall, IReactorTime
  from twisted.logger import Logger
 diff --git a/src/twisted/internet/tcp.py b/src/twisted/internet/tcp.py
-index 8f85025..7bdedcf 100644
+index 7bc4d1e..cb2fba4 100644
 --- a/src/twisted/internet/tcp.py
 +++ b/src/twisted/internet/tcp.py
-@@ -19,7 +19,7 @@ from typing import Callable, ClassVar, List, Optional, Union
+@@ -19,7 +19,7 @@ from typing import Any, Callable, ClassVar, List, Optional, Union
  from zope.interface import Interface, implementer
  
  import attr
@@ -205,7 +205,7 @@ index 8f85025..7bdedcf 100644
  
  from twisted.internet.interfaces import (
      IHalfCloseableProtocol,
-@@ -948,7 +948,7 @@ class _IFileDescriptorReservation(Interface):
+@@ -960,7 +960,7 @@ class _IFileDescriptorReservation(Interface):
          """
  
  
@@ -267,10 +267,10 @@ index 58323e1..66e6e73 100644
  from twisted.internet.address import IPv4Address
  from twisted.internet.interfaces import (
 diff --git a/src/twisted/internet/testing.py b/src/twisted/internet/testing.py
-index 2c37249..215ee2d 100644
+index a7e1de6..f79bbf7 100644
 --- a/src/twisted/internet/testing.py
 +++ b/src/twisted/internet/testing.py
-@@ -14,7 +14,7 @@ from typing import Callable, Iterator, Sequence, overload
+@@ -27,7 +27,7 @@ from typing import (
  from zope.interface import implementedBy, implementer
  from zope.interface.verify import verifyClass
  
@@ -332,10 +332,10 @@ index cfcf7c9..bbcc7aa 100644
  from twisted.internet import address
  from twisted.python import compat
 diff --git a/src/twisted/python/deprecate.py b/src/twisted/python/deprecate.py
-index c5df556..42a8c03 100644
+index 22b0d16..c69dfec 100644
 --- a/src/twisted/python/deprecate.py
 +++ b/src/twisted/python/deprecate.py
-@@ -100,7 +100,7 @@ from typing import Any, Callable, Dict, Optional, TypeVar, cast
+@@ -101,7 +101,7 @@ from typing import Any, Callable, Dict, Optional, TypeVar, cast
  from warnings import warn, warn_explicit
  
  from incremental import Version, getVersionString
@@ -410,10 +410,10 @@ index 9aa9c7c..7179226 100644
  from twisted.python.compat import cmp, comparable
  from twisted.python.filepath import (
 diff --git a/src/twisted/test/test_defer.py b/src/twisted/test/test_defer.py
-index 1ae21ab..ff24251 100644
+index 2ae6597..7850038 100644
 --- a/src/twisted/test/test_defer.py
 +++ b/src/twisted/test/test_defer.py
-@@ -43,7 +43,7 @@ from typing import (
+@@ -44,7 +44,7 @@ from typing import (
  from hamcrest import assert_that, empty, equal_to
  from hypothesis import given
  from hypothesis.strategies import integers
@@ -540,10 +540,10 @@ index e25fa95..becbcac 100644
  from twisted.python import rebuild
  from twisted.trial.unittest import TestCase
 diff --git a/src/twisted/trial/_asynctest.py b/src/twisted/trial/_asynctest.py
-index 048e8dc..06a608c 100644
+index 6765c70..19d63d5 100644
 --- a/src/twisted/trial/_asynctest.py
 +++ b/src/twisted/trial/_asynctest.py
-@@ -15,7 +15,7 @@ from typing import Callable, List
+@@ -14,7 +14,7 @@ from typing import Callable, List
  
  from zope.interface import implementer
  
@@ -553,7 +553,7 @@ index 048e8dc..06a608c 100644
  # We can't import reactor at module-level because this code runs before trial
  # installs a user-specified reactor, installing the default reactor and
 diff --git a/src/twisted/trial/_dist/test/matchers.py b/src/twisted/trial/_dist/test/matchers.py
-index 836f536..0720d76 100644
+index 4e86604..b171c79 100644
 --- a/src/twisted/trial/_dist/test/matchers.py
 +++ b/src/twisted/trial/_dist/test/matchers.py
 @@ -25,7 +25,7 @@ from hamcrest.core.base_matcher import BaseMatcher
@@ -579,7 +579,7 @@ index 77e5021..bee179c 100644
  from twisted.internet.defer import Deferred, DeferredList
  from twisted.internet.error import ProcessDone
 diff --git a/src/twisted/trial/_dist/workerreporter.py b/src/twisted/trial/_dist/workerreporter.py
-index 5f2d7a0..d165ff1 100644
+index f266d72..9b3cc10 100644
 --- a/src/twisted/trial/_dist/workerreporter.py
 +++ b/src/twisted/trial/_dist/workerreporter.py
 @@ -14,7 +14,7 @@ from typing import Callable, List, Optional, Sequence, Type, TypeVar
@@ -605,7 +605,7 @@ index 6b1f43d..81e61d7 100644
  from twisted.internet.defer import Deferred, ensureDeferred
  from twisted.python import failure, log, monkey
 diff --git a/src/twisted/trial/reporter.py b/src/twisted/trial/reporter.py
-index 4ee67eb..75c774a 100644
+index 2034a83..fe35a05 100644
 --- a/src/twisted/trial/reporter.py
 +++ b/src/twisted/trial/reporter.py
 @@ -20,7 +20,7 @@ from typing import TYPE_CHECKING, List, Optional, Tuple, Type, Union
@@ -670,7 +670,7 @@ index 468e877..bfa94e6 100644
  from twisted.trial.unittest import TestCase
  from twisted.web import domhelpers, microdom, sux
 diff --git a/tox.ini b/tox.ini
-index 9f5e961..88824d4 100644
+index 764ed1b..a6ef69a 100644
 --- a/tox.ini
 +++ b/tox.ini
 @@ -78,7 +78,6 @@ deps =

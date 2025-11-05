@@ -1,10 +1,7 @@
-# watch file for twisted
+Version: 5
 
-version=4
-
-opts="mode=git, \
-      filenamemangle=s/.+\/(\d\S*)\.tar\.gz/twisted-$1.tar.gz/ \
-      uversionmangle=s/(\d)[_\.\-\+]?((RC|rc|pre|dev|beta|alpha)\.?\d*)$/$1~$2/, \
-      dversionmangle=s/\+ds(\.?\d+)?$//" \
-https://github.com/twisted/twisted.git \
-      refs/tags/twisted-(\d+\.\d+.\d+)
+Source: https://github.com/twisted/twisted.git
+Matching-Pattern: refs/tags/twisted-(\d+\.\d+.\d+)
+Mode: git
+Uversion-Mangle: s/(\d)[_\.\-\+]?((RC|rc|pre|dev|beta|alpha)\.?\d*)$/$1~$2/
+Dversion-Mangle: s/\+ds(\.?\d+)?$//
